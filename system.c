@@ -17,8 +17,9 @@ void clock_setup(void)
 {
 	// default: MCLK = SMCLK = DCO ~ 1.2MHz
 	// set DCO speed to calibrated 1MHz
-	BCSCTL1 = CALBC1_1MHZ;
-	DCOCTL = CALDCO_1MHZ;
+	BCSCTL1 = CALBC1_8MHZ;
+	DCOCTL = CALDCO_8MHZ;
+
 }
 
 void IO_setup(void)

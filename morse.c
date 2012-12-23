@@ -27,21 +27,22 @@ void morse_timer_start(void)
 	// default: set to 12 WPM, 1 dot = 100 ms //
 	// 1 WPM = 50 dots per min
 	// ex) 1 WPM, 1 dot = 1200ms
-	TA0CCR0 = 33;						       // 33 -> 1.007 ms
-	TA0CTL = TASSEL_1 + MC_1;                  // ACLK, upmode
 	tick = 0;
-	TA0CCTL0 |= CCIE;                           // TA0CCR0 interrupt enabled
+	TA0CCR0 = 3276;						       // 3276 = 100 ms
+	TA0CTL = TASSEL_1 + MC_1;                  // ACLK, upmode
+	TA0CCTL0 |= CCIE;                          // TA0CCR0 interrupt enabled
 }
 
 
-void morse_set_WPM(uint8_t wpm)
-{
-	//min WPM = 1, 1 dot = 1200 ms
-	//max WPM = 50, 1 dot = 24 ms
-	//OSSI WPM = 12, 1 dot = 100 ms
-	min_max(1,50,wpm);
-	dot_length = (uint16_t)(1200 / wpm);
-}
+
+//void morse_set_WPM(uint8_t wpm)
+//{
+//	//min WPM = 1, 1 dot = 1200 ms
+//	//max WPM = 50, 1 dot = 24 ms
+//	//OSSI WPM = 12, 1 dot = 100 ms
+//	min_max(1,50,wpm);
+//	dot_length = (uint16_t)(1200 / wpm);
+//}
 
 void morse_set_sendFlag(void)
 {
@@ -76,10 +77,10 @@ uint16_t morse_set_dataSizeFrom(uint8_t * bytes)
 	return bytes_size;
 }
 
-void morse_init(uint8_t wpm)
+void morse_init(void)
 {
 	// TODO: add extra initialization process if needed
-	morse_set_WPM(wpm);
+//	morse_set_WPM(wpm);
 	ADF7012_init();
 	ADF7012_init_all_registers();
 	ADF7012_enable();
@@ -103,7 +104,7 @@ void morse_init(uint8_t wpm)
 void morse_send_dots(uint8_t dots, uint8_t val)
 {
 	total_dot_length = 0;
-	total_dot_length = dots * dot_length;
+	total_dot_length = dots;
 	ADF7012_OOK(val);
 	IO_SET(LED,val);
 	morse_timer_start();
@@ -217,7 +218,7 @@ __interrupt void Timer_A (void)
 	// data processing
 	tick++; // every 1.007 ms
 
-	if (tick > total_dot_length)
+	if (tick > total_dot_length-1)
 	{
 		tick = 0;
 		// morse_set_sendFlag();

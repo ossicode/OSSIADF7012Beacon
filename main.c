@@ -34,10 +34,12 @@ void main(void)
 	// wait 1000 ms in the beginning for stabilizing 32.768kHz
 	// TODO:implement ACLK clock stability check ->
 	delay_ms(1);
-	morse_init(20);
-	ADF7012_OOK(HIGH);
+//	morse_init(20);
+//	ADF7012_OOK(HIGH);
+	printf("system on\r\n");
 	while(1)
 	{
+
 		// Enter LPM3, interrupts enabled
 		__bis_SR_register(LPM3_bits + GIE);
 		beacon_data_receive();
@@ -86,7 +88,7 @@ void beacon_data_processing(void)
 
 		gps_make_packet();
 		// ready to send morse code
-		morse_init(20);
+		morse_init();
 	}
 	else
 	{
@@ -98,7 +100,7 @@ void beacon_data_processing(void)
 	if (i2c_is_ready())
 	{
 		i2c_clear_readyFlag();
-		morse_init(12);
+		morse_init();
 
 	}
 }

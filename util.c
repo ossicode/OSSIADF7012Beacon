@@ -12,7 +12,7 @@ void delay_ms(uint16_t delay)
 	volatile uint16_t i;
 	for (i=0; i<delay;i++)
 	{
-		__delay_cycles(1000);
+		__delay_cycles(8000); // @ DCO 8MHz
 	}
 }
 

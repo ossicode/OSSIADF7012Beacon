@@ -16,9 +16,9 @@
 void morse_set_sendFlag(void);
 void morse_clear_sendFlag(void);
 
-void morse_set_WPM(uint8_t wpm);
+//void morse_set_WPM(void);
 
-void morse_init(uint8_t wpm);
+void morse_init(void);
 uint8_t morse_is_ready(void);
 void morse_send_bytes(uint8_t * bytes);
 

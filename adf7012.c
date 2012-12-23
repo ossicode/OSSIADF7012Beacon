@@ -511,6 +511,7 @@ void ADF7012_OOK(uint8_t val)
 		ADF7012_set_PLL(1);
 		ADF7012_set_muxout(ADF_MUXOUT_DIGITAL_LOCK);
 		ADF7012_set_VCO(vco_bias, vco_adj); // get VCO set values when PLL is locked from ADF7012_lock();
+		//ADF7012_set_PALevel(63);
 		ADF7012_set_PALevel(63);
 		ADF7012_set_PA(1);
 		ADF7012_enable();
