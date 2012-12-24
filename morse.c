@@ -29,6 +29,7 @@ void morse_timer_start(void)
 	// ex) 1 WPM, 1 dot = 1200ms
 	tick = 0;
 	TA0CCR0 = 3276;						       // 3276 = 100 ms
+//	TA0CCR0 = 1966; // 60 ms
 	TA0CTL = TASSEL_1 + MC_1;                  // ACLK, upmode
 	TA0CCTL0 |= CCIE;                          // TA0CCR0 interrupt enabled
 }
@@ -216,7 +217,7 @@ __interrupt void Timer_A (void)
 	// increase tick
 	// compare tick to dotCnt
 	// data processing
-	tick++; // every 1.007 ms
+	tick++; // every 100 ms
 
 	if (tick > total_dot_length-1)
 	{
