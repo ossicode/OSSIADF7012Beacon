@@ -8,6 +8,7 @@
 #include "i2c.h"
 #include "morse.h"
 #include "gps.h"
+#include "adc10.h"
 
 void beacon_data_receive(void);
 void beacon_data_processing(void);
@@ -23,6 +24,7 @@ void main(void)
 	IO_setup();
 	ext_wdt_setup();
 	uart_setup_9600();
+	adc10_setup();
 	ADF7012_setup();
 
 	//module init
@@ -36,12 +38,14 @@ void main(void)
 	delay_ms(1);
 //	morse_init(20);
 //	ADF7012_OOK(HIGH);
-	printf("system on\r\n");
+//	printf("system on\r\n");
 	while(1)
 	{
-
+		printf("VBUS: %u\r\n",adc10_read());
 		// Enter LPM3, interrupts enabled
 		__bis_SR_register(LPM3_bits + GIE);
+		adc10_enable_int();
+		adc10_start(INCH_0);
 		beacon_data_receive();
 		beacon_data_processing();
 		beacon_data_send();

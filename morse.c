@@ -88,6 +88,33 @@ void morse_init(void)
 	ADF7012_write_all_registers();
 	if(ADF7012_lock())
 	{
+		ADF7012_set_PALevel(63);
+		ADF7012_set_PA(1);
+		ADF7012_enable();
+		ADF7012_write_all_registers();
+		morse_set_sendFlag();
+		return;
+	}
+	else
+	{
+		// TODO: do something when PLL is not locked!!
+		// set vco bias and adj value with best guess for PLL
+		morse_clear_sendFlag();
+		ADF7012_disable();
+
+	}
+}
+
+void morse_init_lowpower(void)
+{
+	// TODO: add extra initialization process if needed
+//	morse_set_WPM(wpm);
+	ADF7012_init();
+	ADF7012_init_all_registers();
+	ADF7012_enable();
+	ADF7012_write_all_registers();
+	if(ADF7012_lock())
+	{
 		morse_set_sendFlag();
 		ADF7012_disable();
 		return;
@@ -106,10 +133,20 @@ void morse_send_dots(uint8_t dots, uint8_t val)
 {
 	total_dot_length = 0;
 	total_dot_length = dots;
+	IO_SET(TXDATA,val);
+	IO_SET(LED,val);
+	morse_timer_start();
+}
+
+void morse_send_dots_lowpower(uint8_t dots, uint8_t val)
+{
+	total_dot_length = 0;
+	total_dot_length = dots;
 	ADF7012_OOK(val);
 	IO_SET(LED,val);
 	morse_timer_start();
 }
+
 
 void morse_send_bytes(uint8_t * bytes)
 {
@@ -204,6 +241,7 @@ void morse_send_bytes(uint8_t * bytes)
 	{
 		dot_cnt = 0;
 		bytes_cnt = 0;
+		ADF7012_disable();
 		return;
 	}
 

@@ -92,6 +92,8 @@ void ADF7012_disable(void);
 
 void ADF7012_OOK(uint8_t val);
 
+void ADF7012_set_PA(uint8_t val);
 
+void ADF7012_set_PALevel(uint8_t val);
 
 #endif /* ADF7012_H_ */
