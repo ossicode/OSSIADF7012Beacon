@@ -17,6 +17,7 @@ void clock_setup(void)
 {
 	// default: MCLK = SMCLK = DCO ~ 1.2MHz
 	// set DCO speed to calibrated 1MHz
+	// TODO: clock switching when clock failure (when LFXT1CLK 32.768kHz fails, ACLK source switches from LFXT1CLK -> VLOCLK)
 	BCSCTL1 = CALBC1_8MHZ;
 	DCOCTL = CALDCO_8MHZ;
 

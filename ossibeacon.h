@@ -9,6 +9,7 @@
 #define OSSIBEACON_H_
 
 #include "msp430x21x2.h"
+#include "debug.h"
 #include "system.h"
 #include "ossitypes.h"
 #include "util.h"
