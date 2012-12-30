@@ -24,7 +24,7 @@ void main(void)
 	IO_setup();
 	ext_wdt_setup();
 	uart_setup_9600();
-	adc10_setup(ADC10_PIN_2_0 + ADC10_PIN_2_1);
+	//adc10_setup(ADC10_PIN_2_0 + ADC10_PIN_2_1);
 	ADF7012_setup();
 
 	//module init
@@ -41,11 +41,11 @@ void main(void)
 //	printf("system on\r\n");
 	while(1)
 	{
-		printf("VBUS: %u\r\n",adc10_read());
+		//printf("VBUS: %u\r\n",adc10_read());
 		// Enter LPM3, interrupts enabled
 		__bis_SR_register(LPM3_bits + GIE);
-		adc10_enable_int();
-		adc10_start(INCH_0);
+		//adc10_enable_int();
+		//adc10_start(INCH_0);
 		beacon_data_receive();
 		beacon_data_processing();
 		beacon_data_send();

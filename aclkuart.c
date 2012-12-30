@@ -87,8 +87,8 @@ uint8_t uart_get_byte(void)
  **/
 void uart_send_byte(unsigned char byte)
 {
-
-	while (!(IFG2&UCA0TXIFG));			// USCI_A0 TX buffer ready? //TODO: change this to avoid infinite loop!!!!!
+	// we're not going to change this to avoid infinite loop as we only use printf() for debugging purpose.
+	while (!(IFG2&UCA0TXIFG));			// USCI_A0 TX buffer ready?
 	UCA0TXBUF = byte;					// TX -> RXed character
 
 }

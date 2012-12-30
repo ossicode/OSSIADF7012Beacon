@@ -72,8 +72,8 @@
 #define ADC10_INPUT_A5              (INCH_5)
 #define ADC10_INPUT_A6              (INCH_6)
 #define ADC10_INPUT_A7              (INCH_7)
-#define ADC10_INPUT_VREF_POS        (INCH_8)
-#define ADC10_INPUT_VREF_NEG        (INCH_9)
+#define ADC10_INPUT_VREF_POS        (INCH_8) //TODO: what is this?
+#define ADC10_INPUT_VREF_NEG        (INCH_9) //TODO: what is this?
 #define ADC10_INPUT_TEMPSENSOR      (INCH_10)
 #define ADC10_INPUT_VMID		  	(INCH_11)
 //#define ADC10_INPUT_VMID            (INCH_12)
@@ -98,6 +98,18 @@
 #define ADC10_CLOCKDIVIDER_7   (ADC10DIV_6)
 #define ADC10_CLOCKDIVIDER_8   (ADC10DIV_7)
 
+
+//*****************************************************************************
+//
+//The following are values that can be passed to adc10_setVolReference()
+//
+//
+//*****************************************************************************
+#define ADC10_REF_VCC_VSS		(SREF_0)
+#define ADC10_REF_VREF_VSS		(SREF_1)
+
+
+
 //*****************************************************************************
 //
 //The following are values that can be passed to ADC10_startConversion() in the
@@ -119,14 +131,14 @@
 #define ADC10_MULTIPLESAMPLESENABLE  (MSC)
 
 
-
-
-
-void adc10_setup(uint8_t ports);
-void adc10_init(uint16_t sampleHoldSignalSourceSelect, uint8_t clockSourceSelect, uint8_t clockSourceDivider);
-void adc10_start(uint16_t chan);
-uint16_t adc10_read(void);
-void adc10_enable_int(void);
-void adc10_disable_int(void);
+void adc10_portSetup(uint8_t ports);
+void adc10_init(uint16_t sampleHoldSignalSourceSelect, uint8_t clockSourceSelect, uint8_t clockSourceDivider, uint16_t clockCycleHoldCount);
+void adc10_enable(void);
+void adc10_disable(void);
+void adc10_setVolReference(uint16_t refVoltageSourceSelect);
+void adc10_startConversion(uint16_t inputSourceSelect, uint8_t conversionSequenceModeSelect, uint16_t blockStartAddress, uint8_t buf_size);
+void adc10_stopConversion(void);
+void adc10_enableInterrupt(void);
+void adc10_disableInterrupt(void);
 
 #endif /* ADC10_H_ */
