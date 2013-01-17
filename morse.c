@@ -266,6 +266,4 @@ __interrupt void Timer_A (void)
 		// exit LPM3
 		__bic_SR_register_on_exit(LPM3_bits);
 	}
-
-
 }
