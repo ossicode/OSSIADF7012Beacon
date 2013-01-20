@@ -100,7 +100,6 @@ void i2c_disableAllInterrupt(void)
 	UCB0I2COA &= ~UCGCEN;
 }
 
-
 uint8_t i2c_getMasterStatus(void)
 {
 	return i2cMasterStatus;
@@ -809,50 +808,6 @@ __interrupt void USCIAB0TX_ISR(void)
 				   dummy = UCB0RXBUF;
 			   }
 		   }
-			// Slave
-//			if(slaveIndex-1)
-//			{
-//
-//				// check the first data is matched to beacon packet address and store the address value for later use
-//				if (slaveIndex == defaultSlaveIndex)
-//				{
-//					i2cInteralAddress = UCB0RXBUF;
-//					if(i2c_checkInternalAddress(i2cInteralAddress))
-//					{
-//						// store the address value separated from the buffer
-//						//beaconPacketAddress = *slaveRXData;
-//						// change the data pointer position
-//						// TODO: check whether below is correct
-//						slaveData = slaveData + i2cInteralAddress*8;
-//						slaveIndex = 8;
-//					}
-//					else
-//					{
-//						// set to default address
-//						i2cInteralAddress = 0x0;
-//						// NOT the internal address we want
-//						// release the bus (send NACK)
-//						// TODO:how do we know when NACK is out??
-//						UCB0CTL1 |= UCTXNACK;
-//						// TODO: initialize variables
-//					}
-//				}
-//				else
-//				{
-//					*slaveData = UCB0RXBUF;
-//					slaveData++;
-//					slaveIndex --;
-//				}
-//
-//			}
-//			else
-//			{
-//
-//				// when we receive all data
-//				*slaveData = UCB0RXBUF;
-//				i2cSlaveRxDone = 1;
-//				__bic_SR_register_on_exit(LPM3_bits);
-//			}
 		}
 	}
 
@@ -890,37 +845,7 @@ __interrupt void USCIAB0TX_ISR(void)
 				   UCB0TXBUF = 0xFF;
 			   }
 		   }
-			// Slave
-//			if (slaveIndex - 1)
-//			{
-//				// first byte to send?
-//				if (slaveIndex == defaultSlaveIndex)
-//				{
-//						// TODO: Is multiplying takes long time? looks like there's SCL stretching when master read from this slave.
-//						// Maybe because we load the UCB0TXBUF buffer after multiplication instruction.
-//						slaveData = slaveData + i2cInteralAddress*8;
-//						slaveIndex = 8;
-//						UCB0TXBUF = *slaveData;
-//						slaveData++;
-//						slaveIndex --;
-//				}
-//				else
-//				{
-//					UCB0TXBUF = *slaveData;
-//					slaveData++;
-//					slaveIndex --;
-//				}
-//			}
-//			else
-//			{
-//				// TODO: when all sent, send NACK??
-//				//UCB0CTL1 |=UCTXNACK;
-//				// when we transmit all the data
-//				UCB0TXBUF = *slaveData;
-//				i2cSlaveTxDone = 1;
-//				__bic_SR_register_on_exit(LPM3_bits);
-//
-//			}
+
 		}
 	}
 	P2OUT &= ~EXTWDT_PIN;

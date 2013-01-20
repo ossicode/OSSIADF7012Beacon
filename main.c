@@ -8,6 +8,10 @@
 #include "wdt.h"
 #include "ossi_morse.h"
 #include "ossi_gps.h"
+#include "i2c.h"
+
+uint8_t beaconData[32]={0};
+uint8_t beaconData2[32]={0};
 
 void beacon_data_receive(void);
 void beacon_data_processing(void);
@@ -40,24 +44,18 @@ void main(void)
 	//module init
 	uart_init();
 
-	// wait 1000 ms in the beginning for stabilizing 32.768kHz
-	// TODO:implement ACLK clock stability check ->
-	delay_ms(1);
-//	morse_init(20);
-//	ADF7012_OOK(HIGH);
-//	printf("system on\r\n");
 
 	// set for 1ms tick / 1 sec tick / compensate msTick every second
 	systimer_init(TIMER_A1_ACLK, TIMER_A1_DIVIDED_BY_1, TIMER_A1_UP_MODE, 33, 32765);
 	systimer_start();
 
+	i2c_slaveInit(0x49, 32, beaconData);
+	i2c_slaveStart();
+
 	while(1)
 	{
-		//printf("VBUS: %u\r\n",adc10_read());
 		// Enter LPM3, interrupts enabled
 		__bis_SR_register(LPM3_bits + GIE);
-		//adc10_enable_int();
-		//adc10_start(INCH_0);
 		beacon_data_receive();
 		beacon_data_processing();
 		beacon_data_send();
@@ -112,7 +110,6 @@ void beacon_data_send(void) // timer0 related handler
 	{
 		// clear the flag
 		morse_clearSendFlag();
-//		morse_sendBytes(gps_getStream());
 		morse_send(gps_getStream());
 	}
 	else
