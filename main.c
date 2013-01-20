@@ -1,14 +1,13 @@
 /*
  * main.c
  */
-#include "ossibeacon.h"
+#include "ossi_beacon.h"
 #include "printf.h"
 #include "adf7012.h"
 #include "aclkuart.h"
-#include "i2c.h"
+#include "wdt.h"
 #include "ossi_morse.h"
 #include "ossi_gps.h"
-#include "adc10.h"
 
 void beacon_data_receive(void);
 void beacon_data_processing(void);
@@ -17,21 +16,29 @@ void beacon_data_send(void);
 void main(void)
 {
 	//first thing to do
-	int_wdt_disable();
+	wdt_hold();
 	clock_setup();
+	clock_dividerSetup(MCLK_DIVIDED_BY_1, SMCLK_DIVIDED_BY_1, ACLK_DIVIDED_BY_1);
 
-	//ports setup
-	IO_setup();
-	ext_wdt_setup();
+	P1DIR = 0xFF & ~(BIT1+BIT2); // ADF7012 TXCLK output is high. Beware!!! Why??
+	P1OUT = 0x00;
+	P3DIR = 0xFF & ~(BIT1+BIT2+BIT3+BIT5);
+	P3OUT = 0x00;
+	P2DIR = 0xFF & ~(BIT0+BIT1+BIT5);
+	P2OUT = 0x00;
+
+	P2OUT &= ~EXTWDT_PIN;
+	P2DIR |= EXTWDT_PIN;
+
+	P3OUT &= ~LED_PIN;
+	P3DIR |= LED_PIN;
+
 	uart_setup_9600();
 	//adc10_setup(ADC10_PIN_2_0 + ADC10_PIN_2_1);
 	adf7012_setup();
 
 	//module init
 	uart_init();
-	// TODO: check WDI timing
-	ext_wdt_rst();
-
 
 	// wait 1000 ms in the beginning for stabilizing 32.768kHz
 	// TODO:implement ACLK clock stability check ->
@@ -73,11 +80,7 @@ void beacon_data_receive(void) // uart related handler
 		return;
 	}
 
-	// i2c
-	if (i2c_rx_ready())
-	{
-		i2c_clear_rxFlag();
-	}
+
 }
 
 void beacon_data_processing(void)
@@ -100,13 +103,7 @@ void beacon_data_processing(void)
 	}
 
 
-	// i2c
-	if (i2c_is_ready())
-	{
-		i2c_clear_readyFlag();
-		morse_init();
 
-	}
 }
 
 void beacon_data_send(void) // timer0 related handler

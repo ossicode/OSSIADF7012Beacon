@@ -8,7 +8,7 @@
 #ifndef GPS_H_
 #define GPS_H_
 
-#include "ossibeacon.h"
+#include "ossi_beacon.h"
 
 #define MAXCOMMAS 14   //Max commas to store positions of (14 for GGA sentence)
 #define MAXGPS 82              //Max NMEA string size

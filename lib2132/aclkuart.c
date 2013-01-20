@@ -7,7 +7,7 @@
 
 #include "aclkuart.h"
 static volatile uint8_t uart_rx_flag = 0;
-static volatile uint8_t rx_byte = '\0';
+volatile uint8_t uart_rxByte = '\0';
 
 // Low-Frequency Baud Rate Mode
 // read chapter 15.3.10 of msp430x2xxx user's guide for baud rate generation
@@ -37,20 +37,7 @@ void uart_init(void)
 	IE2 &= ~UCA0TXIE;						  // default: Disable USCI_A0 TX interrupt
 }
 
-void i2c_set_rxFlag(void)
-{
 
-}
-
-void i2c_clear_rxFlag(void)
-{
-
-}
-
-uint8_t i2c_rx_ready(void)
-{
-	return 0;
-}
 
 void uart_set_rxFlag(void)
 {
@@ -78,7 +65,7 @@ uint8_t uart_get_byte(void)
 {
 	// return only you have available data from uart, NOT i2c
 
-	return rx_byte;
+	return uart_rxByte;
 }
 
 
@@ -111,24 +98,24 @@ void putc(unsigned b) {
 }
 
 
-// USCI A0/B0 Transmit ISR
-#pragma vector=USCIAB0TX_VECTOR
-__interrupt void USCI0TX_ISR(void)
-{
-	IE2 &= ~UCA0TXIE;						// Disable USCI_A0 TX interrupt
-}
-
-// USCI A0/B0 Receive ISR
-#pragma vector=USCIAB0RX_VECTOR
-__interrupt void USCI0RX_ISR(void)
-{
-	// TODO: I2C and UART handle at the same time
-	rx_byte = UCA0RXBUF;					// Get the received character
-
-	// gps (uart)
-	uart_set_rxFlag();
-	__bic_SR_register_on_exit(LPM3_bits);
-
-
-}
+//// USCI A0/B0 Transmit ISR
+//#pragma vector=USCIAB0TX_VECTOR
+//__interrupt void USCI0TX_ISR(void)
+//{
+//	IE2 &= ~UCA0TXIE;						// Disable USCI_A0 TX interrupt
+//}
+//
+//// USCI A0/B0 Receive ISR
+//#pragma vector=USCIAB0RX_VECTOR
+//__interrupt void USCI0RX_ISR(void)
+//{
+//	// TODO: I2C and UART handle at the same time
+//	rx_byte = UCA0RXBUF;					// Get the received character
+//
+//	// gps (uart)
+//	uart_set_rxFlag();
+//	__bic_SR_register_on_exit(LPM3_bits);
+//
+//
+//}
 

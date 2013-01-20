@@ -133,8 +133,16 @@ void morse_sendDots(uint8_t dots, uint8_t val)
 {
 	totalDotLength = 0;
 	totalDotLength = dots;
-	IO_SET(TXDATA,val);
-	IO_SET(LED,val);
+	if (val)
+	{
+		P1OUT |= BEACON_DATA_PIN;
+		P3OUT |= LED_PIN;
+	}
+	else
+	{
+		P1OUT &= ~BEACON_DATA_PIN;
+		P3OUT &= ~LED_PIN;
+	}
 	morse_timerStart();
 }
 
@@ -142,8 +150,16 @@ void morse_sendDotsLowpower(uint8_t dots, uint8_t val)
 {
 	totalDotLength = 0;
 	totalDotLength = dots;
-	adf7012_OOK(val);
-	IO_SET(LED,val);
+	if (val)
+	{
+		adf7012_OOK(val);
+		P3OUT |= LED_PIN;
+	}
+	else
+	{
+		adf7012_OOK(val);
+		P3OUT &= ~LED_PIN;
+	}
 	morse_timerStart();
 }
 
@@ -192,7 +208,7 @@ void morse_sendBytes(uint8_t * bytes)
 		{
 			dot_cnt = 0;
 			bytes_cnt++;
-			morse_sendDots(4,LOW);
+			morse_sendDots(4,0);
 			return;
 		}
 
@@ -208,13 +224,13 @@ void morse_sendBytes(uint8_t * bytes)
 				if ((converted >> (total_dots - dot_cnt - 1)) & 0x01)
 				{
 					// 3 dots
-					morse_sendDots(3,HIGH);
+					morse_sendDots(3,1);
 					return;
 				}
 				else
 				{
 					// 1 dot
-					morse_sendDots(1,HIGH);
+					morse_sendDots(1,1);
 					return;
 				}
 			}
@@ -225,7 +241,7 @@ void morse_sendBytes(uint8_t * bytes)
 				dot_cnt++;
 				// if dots are sent
 				// send 1 dot pause
-				morse_sendDots(1,LOW);
+				morse_sendDots(1,0);
 				return;
 			}
 		}
@@ -233,7 +249,7 @@ void morse_sendBytes(uint8_t * bytes)
 		{
 				dot_cnt = 0;
 				bytes_cnt++;
-				morse_sendDots(2,LOW); // send 2 more dots so became total of 3 dots
+				morse_sendDots(2,0); // send 2 more dots so became total of 3 dots
 				return;
 		}
 	}

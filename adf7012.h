@@ -8,33 +8,33 @@
 #ifndef ADF7012_H_
 #define ADF7012_H_
 
-#include "ossibeacon.h"
+#include "ossi_beacon.h"
 #include "printf.h"
 
 // MSP430F2132 pin mapping
-#define TXDATA_PORT 1
-#define TXDATA_PIN 3
-
-#define TXCLK_PORT 1
-#define TXCLK_PIN 2
-
-#define SCLK_PORT 1
-#define SCLK_PIN 0
-
-#define SDATA_PORT 2
-#define SDATA_PIN 4
-
-#define SLE_PORT 2
-#define SLE_PIN 3
-
-#define CE_PORT 3
-#define CE_PIN 7
-
-#define MUXOUT_PORT 1
-#define MUXOUT_PIN 1
-
-#define PAON_PORT 3
-#define PAON_PIN 6
+//#define TXDATA_PORT 1
+//#define TXDATA_PIN 3
+//
+//#define TXCLK_PORT 1
+//#define TXCLK_PIN 2
+//
+//#define SCLK_PORT 1
+//#define SCLK_PIN 0
+//
+//#define SDATA_PORT 2
+//#define SDATA_PIN 4
+//
+//#define SLE_PORT 2
+//#define SLE_PIN 3
+//
+//#define CE_PORT 3
+//#define CE_PIN 7
+//
+//#define MUXOUT_PORT 1
+//#define MUXOUT_PIN 1
+//
+//#define PAON_PORT 3
+//#define PAON_PIN 6
 
 // Register Constants ========================================================
 

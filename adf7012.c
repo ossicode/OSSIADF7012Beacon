@@ -56,34 +56,34 @@ struct {
 
 void adf7012_setup(void)
 {
-	// port init
-	IO_DIRECTION(TXDATA, OUTPUT);
-	//IO_DIRECTION(TXCLK, INPUT); // TODO: for GOOK modulation
-	IO_DIRECTION(SCLK,OUTPUT);
-	IO_DIRECTION(SDATA,OUTPUT);
-	IO_DIRECTION(SLE,OUTPUT);
-	IO_DIRECTION(CE,OUTPUT);
-	IO_DIRECTION(PAON,OUTPUT);
-	IO_DIRECTION(MUXOUT,INPUT);
-
 	// default pin state
-	IO_SET(PAON, LOW);
-	IO_SET(TXDATA, LOW);
-	IO_SET(SCLK, LOW);
-	IO_SET(SDATA, LOW);
-	IO_SET(SLE, LOW);
-	IO_SET(CE, LOW);
+	P1OUT &= ~BEACON_DATA_PIN;
+	P1OUT &= ~BEACON_SCLK_PIN;
+	P2OUT &= ~BEACON_SDATA_PIN;
+	P2OUT &= ~BEACON_SLE_PIN;
+	P3OUT &= ~BEACON_CE_PIN;
+	P3OUT &= ~PA_ON_PIN;
+
+	// port init
+	P1DIR &= ~BEACON_MUXOUT_PIN;
+	P1DIR &= ~BEACON_TXCLK_PIN; // TODO: for GOOK modulation
+	P1DIR |= BEACON_DATA_PIN;
+	P1DIR |= BEACON_SCLK_PIN;
+	P2DIR |= BEACON_SDATA_PIN;
+	P2DIR |= BEACON_SLE_PIN;
+	P3DIR |= BEACON_CE_PIN;
+	P3DIR |= PA_ON_PIN;
 }
 
 void adf7012_init(void)
 {
 	// default pin state
-	IO_SET(PAON, LOW);
-	IO_SET(TXDATA, LOW);
-	IO_SET(SCLK, LOW);
-	IO_SET(SDATA, LOW);
-	IO_SET(SLE, LOW);
-	IO_SET(CE, LOW);
+	P3OUT &= ~PA_ON_PIN;
+	P1OUT &= ~BEACON_DATA_PIN;
+	P1OUT &= ~BEACON_SCLK_PIN;
+	P2OUT &= ~BEACON_SDATA_PIN;
+	P2OUT &= ~BEACON_SLE_PIN;
+	P3OUT &= ~BEACON_CE_PIN;
 
 	// configure timer interrupt
 }
@@ -94,18 +94,18 @@ void byte_write(unsigned char _register)
 
 	for(i = 7; i >= 0; i--)
 	{
-		IO_SET(SCLK, LOW);
+		P1OUT &= ~BEACON_SCLK_PIN;
 		if(_register & (1<<i)) {
-			IO_SET(SDATA, HIGH);
+			P2OUT |= BEACON_SDATA_PIN;
 		}
 		else {
-			IO_SET(SDATA, LOW);
+			P2OUT &= ~BEACON_SDATA_PIN;
 		}
 		__delay_cycles(5);
-		IO_SET(SCLK, HIGH);
+		P1OUT |= BEACON_SCLK_PIN;
 		__delay_cycles(15);
 	}
-	IO_SET(SCLK, LOW);
+	P1OUT &= ~BEACON_SCLK_PIN;
 }
 
 void adf7012_regWrite(uint32_t registers)
@@ -113,11 +113,11 @@ void adf7012_regWrite(uint32_t registers)
 	volatile int i;
 	unsigned char _register;
 
-	IO_SET(SCLK, LOW);
-	IO_SET(SDATA, LOW);
-	IO_SET(SLE, HIGH);
+	P1OUT &= ~BEACON_SCLK_PIN;
+	P2OUT &= ~BEACON_SDATA_PIN;
+	P2OUT |= BEACON_SLE_PIN;
 	__delay_cycles(10);
-	IO_SET(SLE, LOW);
+	P2OUT &= ~BEACON_SLE_PIN;
 	__delay_cycles(10);
 	//for(i=0;i<sizeof(registers);i++)
 	for(i=0;i<sizeof(registers);i++)
@@ -127,9 +127,9 @@ void adf7012_regWrite(uint32_t registers)
 	}
     // SLE
 	__delay_cycles(10);
-	IO_SET(SLE, HIGH);
+	P2OUT |= BEACON_SLE_PIN;
 
-	IO_SET(SDATA, LOW);                       // SDATA low
+	P2OUT &= ~BEACON_SDATA_PIN;
 	//IO_SET(SLE, LOW);
 	__delay_cycles(30);
 
@@ -251,13 +251,13 @@ void adf7012_writeRegisterThree(void) {
 
 void adf7012_enable(void)
 {
-	IO_SET(CE, HIGH);
+	P3OUT |= BEACON_CE_PIN;
 	__delay_cycles(10);
 }
 
 void adf7012_disable(void)
 {
-	IO_SET(CE, LOW);
+	P3OUT &= ~BEACON_CE_PIN;
 	__delay_cycles(10);
 }
 
@@ -434,9 +434,9 @@ void adf7012_findLock(void)
 				adf_config.r3.pa_enable = 1; //ADF PA On
 				adf7012_enable();
 				adf7012_writeAllRegisters();
-				IO_SET(TXDATA,HIGH);
+				P1OUT |= BEACON_DATA_PIN;
 				delay_ms(3000);
-				IO_SET(TXDATA,LOW);
+				P1OUT &= ~BEACON_DATA_PIN;
 	            adf_config.r3.pa_enable = 0;
 	            adf7012_enable();
 	            adf7012_writeAllRegisters();
@@ -483,9 +483,9 @@ void adf7012_findLockOnce(uint8_t bias,uint8_t adj)
 		adf_config.r3.pa_enable = 1; //ADF PA On
 		adf7012_enable();
 		adf7012_writeAllRegisters();
-		IO_SET(TXDATA,HIGH);
+		P1OUT |= BEACON_DATA_PIN;
 		delay_ms(3000);
-		IO_SET(TXDATA,LOW);
+		P1OUT &= ~BEACON_DATA_PIN;
 		adf_config.r3.pa_enable = 0;
 		adf7012_enable();
 		adf7012_writeAllRegisters();
@@ -517,7 +517,7 @@ void adf7012_OOK(uint8_t val)
 		adf7012_enable();
 		adf7012_writeAllRegisters();
 		//TODO: increase PA level gradually and write update register value while TXDATA is HIGH from 0 to certain PA level
-		IO_SET(TXDATA,HIGH);
+		P1OUT |= BEACON_DATA_PIN;
 //		for (pa_level = 0; pa_level < 64; pa_level++) // 63 is max PA level
 //		{
 //			ADF7012_set_PALevel(pa_level);
@@ -527,7 +527,7 @@ void adf7012_OOK(uint8_t val)
 	}
 	else
 	{
-		IO_SET(TXDATA,LOW);
+		P1OUT &= ~BEACON_DATA_PIN;
 //		ADF7012_init_all_registers();
 //		for (pa_level = 63; pa_level > 0 ; pa_level--) // 63 is max PA level
 //		{

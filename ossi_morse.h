@@ -8,7 +8,7 @@
 #ifndef MORSE_H_
 #define MORSE_H_
 
-#include "ossibeacon.h"
+#include "ossi_beacon.h"
 #include "adf7012.h"
 
 //#define MAX_DATA_SIZE 59

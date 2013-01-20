@@ -8,7 +8,9 @@
 #ifndef ACLKUART_H_
 #define ACLKUART_H_
 
-#include "ossibeacon.h"
+#include "ossi_beacon.h"
+
+extern volatile uint8_t uart_rxByte;
 
 void uart_setup_4800(void);
 void uart_setup_9600(void);
