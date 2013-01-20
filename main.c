@@ -25,7 +25,7 @@ void main(void)
 	ext_wdt_setup();
 	uart_setup_9600();
 	//adc10_setup(ADC10_PIN_2_0 + ADC10_PIN_2_1);
-	ADF7012_setup();
+	adf7012_setup();
 
 	//module init
 	uart_init();

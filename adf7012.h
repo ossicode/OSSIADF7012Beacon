@@ -79,21 +79,21 @@
 #define ADF_LD_PRECISION_3_CYCLES 0
 #define ADF_LD_PRECISION_5_CYCLES 1
 
-void ADF7012_setup(void);
-void ADF7012_init(void);
-void ADF7012_init_all_registers(void);
-void ADF7012_write_all_registers(void);
+void adf7012_setup(void);
+void adf7012_init(void);
+void adf7012_initAllRegisters(void);
+void adf7012_writeAllRegisters(void);
 
-uint8_t ADF7012_lock(void);
-void ADF7012_findLock(void);
+uint8_t adf7012_lock(void);
+void adf7012_findLock(void);
 
-void ADF7012_enable(void);
-void ADF7012_disable(void);
+void adf7012_enable(void);
+void adf7012_disable(void);
 
-void ADF7012_OOK(uint8_t val);
+void adf7012_OOK(uint8_t val);
 
-void ADF7012_set_PA(uint8_t val);
+void adf7012_setPAON(uint8_t val);
 
-void ADF7012_set_PALevel(uint8_t val);
+void adf7012_setPALevel(uint8_t val);
 
 #endif /* ADF7012_H_ */
