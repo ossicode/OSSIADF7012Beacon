@@ -10,8 +10,7 @@
 #include "ossi_gps.h"
 #include "i2c.h"
 
-uint8_t beaconData[32]={0};
-uint8_t beaconData2[32]={0};
+uint8_t beaconData[64]={0};
 
 void beacon_data_receive(void);
 void beacon_data_processing(void);
@@ -19,7 +18,6 @@ void beacon_data_send(void);
 
 void main(void)
 {
-	//first thing to do
 	wdt_hold();
 	clock_setup();
 	clock_dividerSetup(MCLK_DIVIDED_BY_1, SMCLK_DIVIDED_BY_1, ACLK_DIVIDED_BY_1);
@@ -37,19 +35,17 @@ void main(void)
 	P3OUT &= ~LED_PIN;
 	P3DIR |= LED_PIN;
 
-	uart_setupACLK9600();
-	//adc10_setup(ADC10_PIN_2_0 + ADC10_PIN_2_1);
-	adf7012_setup();
-
-	//module init
-	uart_init();
-
-
 	// set for 1ms tick / 1 sec tick / compensate msTick every second
 	systimer_init(TIMER_A1_ACLK, TIMER_A1_DIVIDED_BY_1, TIMER_A1_UP_MODE, 33, 32765);
 	systimer_start();
 
-	i2c_slaveInit(0x49, 32, beaconData);
+	adf7012_setup();
+
+	uart_setupACLK9600();
+	uart_init();
+
+
+	i2c_slaveInit(0x49, 64, beaconData);
 	i2c_slaveStart();
 
 	while(1)

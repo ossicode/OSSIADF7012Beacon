@@ -16,7 +16,7 @@ uint8_t gpsIndex = 0;
 uint8_t gpsDone = 0;
 Gps gpsData = {"3518.5230", "12039.6090", "123456.789", "00", "000000.0", 'N', 'W', '0'};
 
-uint8_t gpsArrayData[100]={0}; // 59 = sizeof(gpsdata) + spacer character
+uint8_t gpsArrayData[64]={0}; // 59 = sizeof(gpsdata) + spacer character
 
 void gps_setReadyFlag(void)
 {
