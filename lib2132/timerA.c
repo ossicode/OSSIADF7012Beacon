@@ -55,12 +55,12 @@ void i2c_timerTimeoutStop(void)
 
 
 // Timer0_A0 interrupt service routine
-//#pragma vector=TIMER0_A0_VECTOR
-//__interrupt void Timer_A (void)
-//{
-//	// disable timer interrupt
-//	TA0CCTL0 &= ~CCIE;
-//	i2cTimeOut = 1;
-//	P3OUT ^= LED_PIN;
-//}
+#pragma vector=TIMER0_A0_VECTOR
+__interrupt void Timer_A (void)
+{
+	// disable timer interrupt
+	TA0CCTL0 &= ~CCIE;
+	i2cTimeOut = 1;
+	P3OUT ^= LED_PIN;
+}
 

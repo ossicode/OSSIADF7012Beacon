@@ -20,6 +20,7 @@ void morse_clearSendFlag(void);
 
 void morse_init(void);
 uint8_t morse_isReady(void);
-void morse_sendBytes(uint8_t * bytes);
+//void morse_sendBytes(uint8_t * bytes);
+void morse_send(uint8_t* bytes);
 
 #endif /* MORSE_H_ */

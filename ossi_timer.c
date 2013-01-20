@@ -8,6 +8,9 @@
 
 static volatile uint32_t sysMsTick = 0;
 static volatile uint32_t sysSecTick = 0;
+static volatile uint16_t sysMsDelayTick = 0;
+static volatile uint8_t sysMsDelayOn = 0;
+static volatile uint16_t sysMsDelay = 0;
 static uint16_t msUnit;
 
 void systimer_init(uint16_t timerBSourceSelect, uint8_t timerBDividerSelect, uint8_t timerBMode, uint16_t timerBMsThreshold ,uint16_t timerBSecThreshold)
@@ -74,13 +77,20 @@ uint32_t systimer_getSecTick(void)
 	return sysSecTick;
 }
 
+void systimer_msDelay(uint16_t msDelay)
+{
+	sysMsDelay = msDelay;
+	sysMsDelayTick =0;
+	sysMsDelayOn = 1;
+	while(sysMsDelayOn);
+}
 
 // Timer1_A0 interrupt service routine
 #pragma vector=TIMER1_A0_VECTOR
 __interrupt void systimer_sec(void)
 {
 	// TODO: overflow check needed?
-	P3OUT ^= LED_PIN;
+//	P3OUT ^= LED_PIN;
 	sysSecTick++;
 	sysMsTick = sysSecTick * 1000;
 	TA1CCR1 = msUnit;
@@ -97,6 +107,14 @@ __interrupt void systimer_ms(void)
 		P3OUT ^= BEACON_CWCONTROL_PIN;
 		sysMsTick++;
 		TA1CCR1 += msUnit;
+		if(sysMsDelayOn)
+		{
+			sysMsDelayTick++;
+			if (sysMsDelayTick >= sysMsDelay)
+			{
+				sysMsDelayOn = 0;
+			}
+		}
 		break;
 	default:
 		break;

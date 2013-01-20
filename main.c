@@ -46,6 +46,11 @@ void main(void)
 //	morse_init(20);
 //	ADF7012_OOK(HIGH);
 //	printf("system on\r\n");
+
+	// set for 1ms tick / 1 sec tick / compensate msTick every second
+	systimer_init(TIMER_A1_ACLK, TIMER_A1_DIVIDED_BY_1, TIMER_A1_UP_MODE, 33, 32765);
+	systimer_start();
+
 	while(1)
 	{
 		//printf("VBUS: %u\r\n",adc10_read());
@@ -107,7 +112,8 @@ void beacon_data_send(void) // timer0 related handler
 	{
 		// clear the flag
 		morse_clearSendFlag();
-		morse_sendBytes(gps_getStream());
+//		morse_sendBytes(gps_getStream());
+		morse_send(gps_getStream());
 	}
 	else
 	{

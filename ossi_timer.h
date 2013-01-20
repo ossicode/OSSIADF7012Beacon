@@ -31,4 +31,6 @@ void systimer_stop(void);
 uint32_t systimer_getMsTick(void);
 uint32_t systimer_getSecTick(void);
 
+void systimer_msDelay(uint16_t msDelay);
+
 #endif /* OSSI_TIMER_H_ */
