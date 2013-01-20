@@ -11,6 +11,7 @@
 #include "msp430f2132.h"
 #include "ossi_types.h"
 #include "clock.h"
+#include "ossi_timer.h"
 #include "system.h"
 #include "util.h"
 #include "debug.h"

@@ -10,7 +10,10 @@
 
 #include "ossi_beacon.h"
 #include "timerA.h"
-#include "aclkuart.h"
+#include "uart.h"
+
+extern volatile uint8_t uart_rxByte;
+
 
 /*
  * I2C Master Status

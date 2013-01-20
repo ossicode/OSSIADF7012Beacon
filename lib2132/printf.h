@@ -10,7 +10,7 @@
 #define PRINTF_H_
 
 #include "stdarg.h"
-#include "aclkuart.h"
+#include "uart.h"
 
 void printf(char *, ...);
 

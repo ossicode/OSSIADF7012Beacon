@@ -10,21 +10,20 @@
 
 #include "ossi_beacon.h"
 
-extern volatile uint8_t uart_rxByte;
 
-void uart_setup_4800(void);
-void uart_setup_9600(void);
+void uart_setupACLK4800(void);
+void uart_setupACLK9600(void);
 void uart_init(void);
 
-void uart_set_rxFlag(void);
-void uart_clear_rxFlag(void);
-uint8_t uart_rx_ready(void);
+void uart_setRxFlag(void);
+void uart_clearRxFlag(void);
+uint8_t uart_rxReady(void);
 
 void i2c_set_rxFlag(void);
 void i2c_clear_rxFlag(void);
 uint8_t i2c_rx_ready(void);
 
-uint8_t uart_get_byte(void);
+uint8_t uart_getByte(void);
 
 void putc(unsigned);
 void puts(char *);

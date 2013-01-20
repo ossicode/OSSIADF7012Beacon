@@ -4,7 +4,7 @@
 #include "ossi_beacon.h"
 #include "printf.h"
 #include "adf7012.h"
-#include "aclkuart.h"
+#include "uart.h"
 #include "wdt.h"
 #include "ossi_morse.h"
 #include "ossi_gps.h"
@@ -33,7 +33,7 @@ void main(void)
 	P3OUT &= ~LED_PIN;
 	P3DIR |= LED_PIN;
 
-	uart_setup_9600();
+	uart_setupACLK9600();
 	//adc10_setup(ADC10_PIN_2_0 + ADC10_PIN_2_1);
 	adf7012_setup();
 
@@ -63,12 +63,12 @@ void main(void)
 void beacon_data_receive(void) // uart related handler
 {
 	// gps
-	if (uart_rx_ready())
+	if (uart_rxReady())
 	{
-		uart_clear_rxFlag();
+		uart_clearRxFlag();
 		// uart_get_byte() only works after uart ISR
 		// TODO:check possibility of error!!!
-		if(gps_updateData(uart_get_byte()))
+		if(gps_updateData(uart_getByte()))
 		{
 			// if all the gps data we want are received
 			gps_setReadyFlag();
@@ -79,8 +79,6 @@ void beacon_data_receive(void) // uart related handler
 	{
 		return;
 	}
-
-
 }
 
 void beacon_data_processing(void)
@@ -101,9 +99,6 @@ void beacon_data_processing(void)
 	{
 		return;
 	}
-
-
-
 }
 
 void beacon_data_send(void) // timer0 related handler

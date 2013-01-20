@@ -5,13 +5,13 @@
  *      Author: OSSI
  */
 
-#include "aclkuart.h"
-static volatile uint8_t uart_rx_flag = 0;
+#include "uart.h"
+static volatile uint8_t uart_rxFlag = 0;
 volatile uint8_t uart_rxByte = '\0';
 
 // Low-Frequency Baud Rate Mode
 // read chapter 15.3.10 of msp430x2xxx user's guide for baud rate generation
-void uart_setup_9600(void)
+void uart_setupACLK9600(void)
 {
 	P3SEL = 0x30;                             // P3.4,5 = USCI_A0 TXD/RXD, No need to set IO direction
 	UCA0CTL1 |= UCSSEL_1;                     // CLK = ACLK
@@ -21,7 +21,7 @@ void uart_setup_9600(void)
 	UCA0CTL1 &= ~UCSWRST;                     // **Initialize USCI state machine**
 }
 
-void uart_setup_4800(void)
+void uart_setupACLK4800(void)
 {
 	P3SEL = 0x30;                             // P3.4,5 = USCI_A0 TXD/RXD, No need to set IO direction
 	UCA0CTL1 |= UCSSEL_1;                     // CLK = ACLK
@@ -38,20 +38,19 @@ void uart_init(void)
 }
 
 
-
-void uart_set_rxFlag(void)
+void uart_setRxFlag(void)
 {
-	uart_rx_flag = 1;
+	uart_rxFlag = 1;
 }
 
-void uart_clear_rxFlag(void)
+void uart_clearRxFlag(void)
 {
-	uart_rx_flag = 0;
+	uart_rxFlag = 0;
 }
 
-uint8_t uart_rx_ready(void)
+uint8_t uart_rxReady(void)
 {
-	if(uart_rx_flag)
+	if(uart_rxFlag)
 	{
 		return 1;
 	}
@@ -61,7 +60,7 @@ uint8_t uart_rx_ready(void)
 	}
 }
 
-uint8_t uart_get_byte(void)
+uint8_t uart_getByte(void)
 {
 	// return only you have available data from uart, NOT i2c
 
@@ -72,7 +71,7 @@ uint8_t uart_get_byte(void)
 /**
  * Sends a single byte out through UART
  **/
-void uart_send_byte(unsigned char byte)
+void uart_sendByte(unsigned char byte)
 {
 	// we're not going to change this to avoid infinite loop as we only use printf() for debugging purpose.
 	while (!(IFG2&UCA0TXIFG));			// USCI_A0 TX buffer ready?
@@ -85,7 +84,7 @@ void puts(char *s) {
 
 	// Loops through each character in string 's'
 	while (c = *s++) {
-		uart_send_byte(c);
+		uart_sendByte(c);
 	}
 }
 /**
@@ -94,7 +93,7 @@ void puts(char *s) {
  *     out over UART.
  **/
 void putc(unsigned b) {
-	uart_send_byte(b);
+	uart_sendByte(b);
 }
 
 

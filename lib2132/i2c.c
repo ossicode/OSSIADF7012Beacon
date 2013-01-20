@@ -699,7 +699,7 @@ __interrupt void USCIAB0RX_ISR(void)
 	{
 		uart_rxByte = UCA0RXBUF;					// Get the received character
 		// gps (uart)
-		uart_set_rxFlag();
+		uart_setRxFlag();
 		__bic_SR_register_on_exit(LPM3_bits);
 	}
 
