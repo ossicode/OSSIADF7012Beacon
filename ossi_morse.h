@@ -13,13 +13,13 @@
 
 //#define MAX_DATA_SIZE 59
 
-void morse_set_sendFlag(void);
-void morse_clear_sendFlag(void);
+void morse_setSendFlag(void);
+void morse_clearSendFlag(void);
 
 //void morse_set_WPM(void);
 
 void morse_init(void);
-uint8_t morse_is_ready(void);
-void morse_send_bytes(uint8_t * bytes);
+uint8_t morse_isReady(void);
+void morse_sendBytes(uint8_t * bytes);
 
 #endif /* MORSE_H_ */

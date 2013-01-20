@@ -30,12 +30,12 @@ typedef struct
 	uint8_t valid;
 } Gps;
 
-void gps_set_readyFlag(void);
-void gps_clear_readyFlag(void);
-uint8_t gps_is_ready(void);
+void gps_setReadyFlag(void);
+void gps_clearReadyFlag(void);
+uint8_t gps_isReady(void);
 
-uint8_t gps_update_data(uint8_t data);
-void gps_make_packet(void);
-uint8_t* gps_get_stream(void);
+uint8_t gps_updateData(uint8_t data);
+void gps_makePacket(void);
+uint8_t* gps_getStream(void);
 
 #endif /* GPS_H_ */

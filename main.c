@@ -6,8 +6,8 @@
 #include "adf7012.h"
 #include "aclkuart.h"
 #include "i2c.h"
-#include "morse.h"
-#include "gps.h"
+#include "ossi_morse.h"
+#include "ossi_gps.h"
 #include "adc10.h"
 
 void beacon_data_receive(void);
@@ -61,10 +61,10 @@ void beacon_data_receive(void) // uart related handler
 		uart_clear_rxFlag();
 		// uart_get_byte() only works after uart ISR
 		// TODO:check possibility of error!!!
-		if(gps_update_data(uart_get_byte()))
+		if(gps_updateData(uart_get_byte()))
 		{
 			// if all the gps data we want are received
-			gps_set_readyFlag();
+			gps_setReadyFlag();
 			return;
 		}
 	}
@@ -84,13 +84,13 @@ void beacon_data_processing(void)
 {
 	//gps
 	// gps
-	if (gps_is_ready())
+	if (gps_isReady())
 	{
-		gps_clear_readyFlag();
+		gps_clearReadyFlag();
 		// process gps data
 		// make packet from i2c and gps data
 
-		gps_make_packet();
+		gps_makePacket();
 		// ready to send morse code
 		morse_init();
 	}
@@ -111,11 +111,11 @@ void beacon_data_processing(void)
 
 void beacon_data_send(void) // timer0 related handler
 {
-	if(morse_is_ready())
+	if(morse_isReady())
 	{
 		// clear the flag
-		morse_clear_sendFlag();
-		morse_send_bytes(gps_get_stream());
+		morse_clearSendFlag();
+		morse_sendBytes(gps_getStream());
 	}
 	else
 	{
