@@ -11,7 +11,7 @@ volatile uint8_t uart_rxByte = '\0';
 
 // Low-Frequency Baud Rate Mode
 // read chapter 15.3.10 of msp430x2xxx user's guide for baud rate generation
-void uart_setupACLK9600(void)
+void uart_initACLK9600(void)
 {
 	P3SEL = 0x30;                             // P3.4,5 = USCI_A0 TXD/RXD, No need to set IO direction
 	UCA0CTL1 |= UCSSEL_1;                     // CLK = ACLK
@@ -21,7 +21,7 @@ void uart_setupACLK9600(void)
 	UCA0CTL1 &= ~UCSWRST;                     // **Initialize USCI state machine**
 }
 
-void uart_setupACLK4800(void)
+void uart_initACLK4800(void)
 {
 	P3SEL = 0x30;                             // P3.4,5 = USCI_A0 TXD/RXD, No need to set IO direction
 	UCA0CTL1 |= UCSSEL_1;                     // CLK = ACLK
@@ -31,7 +31,7 @@ void uart_setupACLK4800(void)
 	UCA0CTL1 &= ~UCSWRST;                     // **Initialize USCI state machine**
 }
 
-void uart_init(void)
+void uart_start(void)
 {
 	IE2 |= UCA0RXIE;                          // default: Enable USCI_A0 RX interrupt
 	IE2 &= ~UCA0TXIE;						  // default: Disable USCI_A0 TX interrupt

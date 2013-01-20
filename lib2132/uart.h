@@ -11,9 +11,9 @@
 #include "ossi_beacon.h"
 
 
-void uart_setupACLK4800(void);
-void uart_setupACLK9600(void);
-void uart_init(void);
+void uart_initACLK4800(void);
+void uart_initACLK9600(void);
+void uart_start(void);
 
 void uart_setRxFlag(void);
 void uart_clearRxFlag(void);

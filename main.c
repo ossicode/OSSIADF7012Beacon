@@ -1,6 +1,7 @@
 /*
  * main.c
  */
+
 #include "ossi_beacon.h"
 #include "printf.h"
 #include "adf7012.h"
@@ -11,6 +12,7 @@
 #include "i2c.h"
 
 uint8_t beaconData[64]={0};
+uint8_t hojunData[20]={'H','O','J','U','N',' ','I','S',' ','B','E','S','T'};
 
 void beacon_data_receive(void);
 void beacon_data_processing(void);
@@ -41,10 +43,11 @@ void main(void)
 
 	adf7012_setup();
 
-	uart_setupACLK9600();
-	uart_init();
+	uart_initACLK9600();
+	uart_start();
 
-
+//	_EINT();
+	i2c_portSetup();
 	i2c_slaveInit(0x49, 64, beaconData);
 	i2c_slaveStart();
 
@@ -52,12 +55,20 @@ void main(void)
 	{
 		// Enter LPM3, interrupts enabled
 		__bis_SR_register(LPM3_bits + GIE);
-		beacon_data_receive();
-		beacon_data_processing();
-		beacon_data_send();
+		if(i2c_getSlaveRxDone())
+		{
+			i2c_setSlaveRxDone(0);
+			if(beaconData[2] == 0x03)
+			{
+				morse_init();
+				morse_send(hojunData);
+			}
+		}
+//		beacon_data_receive();
+//		beacon_data_processing();
+//		beacon_data_send();
 	}
 }
-
 
 void beacon_data_receive(void) // uart related handler
 {

@@ -719,6 +719,8 @@ __interrupt void USCIAB0RX_ISR(void)
 	   {
 		   i2cSlaveRxInProgress = 0;
 		   i2cSlaveRxDone = 1;
+		   // TODO: fixt exit LPM policiy
+		   __bic_SR_register_on_exit(LPM3_bits);
 	   }
 
 	   // if transmit mode
