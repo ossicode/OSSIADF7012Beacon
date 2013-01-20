@@ -8,7 +8,7 @@
 #ifndef GLOBAL_H_
 #define GLOBAL_H_
 
-#include "ossitypes.h"
+#include "ossi_types.h"
 
 // Macros for turning on and off the LEDs (for testing only)
 enum {FALSE = 0, TRUE = 1};

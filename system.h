@@ -9,7 +9,7 @@
 #define SETUP2132_H_
 
 #include "msp430x21x2.h"
-#include "ossitypes.h"
+#include "ossi_types.h"
 #include "util.h"
 
 // System IO Define

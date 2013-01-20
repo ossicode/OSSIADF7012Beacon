@@ -11,7 +11,7 @@
 #include "msp430x21x2.h"
 #include "debug.h"
 #include "system.h"
-#include "ossitypes.h"
+#include "ossi_types.h"
 #include "util.h"
 
 
