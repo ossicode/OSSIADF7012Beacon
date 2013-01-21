@@ -79,7 +79,7 @@
 #define ADF_LD_PRECISION_3_CYCLES 0
 #define ADF_LD_PRECISION_5_CYCLES 1
 
-void adf7012_setup(void);
+void adf7012_portSetup(void);
 void adf7012_init(void);
 void adf7012_initAllRegisters(void);
 void adf7012_writeAllRegisters(void);

@@ -164,21 +164,21 @@ void morse_sendDotsLowpower(uint8_t dots, uint8_t val)
 
 void morse_sendByte(uint8_t byte)
 {
-	volatile uint8_t conv_index;
-	volatile uint8_t dot_cnt;
-	volatile uint8_t total_dots;
+	volatile uint8_t convIndex;
+	volatile uint8_t dotCnt;
+	volatile uint8_t totalDots;
 	volatile uint8_t converted;
 
 	//if numbers
 	if(byte >= '0' && byte <= '9')
 	{
-		conv_index = 45;
+		convIndex = 45;
 	}
 	else
 	// space
 	if(byte == ' ')
 	{
-//		conv_index = 32;
+//		convIndex = 32;
 		// previous 3 dots + 2 dots + 2 dots  = 7 dot pause
 		morse_sendDots(2,0);
 		// when space, return
@@ -188,27 +188,27 @@ void morse_sendByte(uint8_t byte)
 	//if Capital Alphabet letter
 	if(byte >= 'A' && byte <= 'Z')
 	{
-		conv_index = 52;
+		convIndex = 52;
 	}
 	else
 	//if Capital Alphabet letter
 	if(byte == ',' )
 	{
-		conv_index = 42;
+		convIndex = 42;
 	}
 	else
 	//if Capital Alphabet letter
 	if(byte == '.' )
 	{
-		conv_index = 45;
+		convIndex = 45;
 	}
 
-	total_dots = size[byte-conv_index];
-	converted = code[byte-conv_index];
+	totalDots = size[byte-convIndex];
+	converted = code[byte-convIndex];
 
-	for (dot_cnt = 0; dot_cnt < total_dots ; dot_cnt++)
+	for (dotCnt = 0; dotCnt < totalDots ; dotCnt++)
 	{
-		if ((converted >> (total_dots - dot_cnt - 1)) & 0x01)
+		if ((converted >> (totalDots - dotCnt - 1)) & 0x01)
 		{
 			// 3 dots
 			morse_sendDots(3,1);
@@ -225,13 +225,13 @@ void morse_sendByte(uint8_t byte)
 
 void morse_send(uint8_t* bytes)
 {
-	volatile uint16_t bytes_cnt;
-	volatile uint16_t dataSize;
+	volatile uint8_t bytesCnt;
+	volatile uint8_t dataSize;
 
 	dataSize = morse_setDataSizeFrom(bytes);
-	for(bytes_cnt = 0; bytes_cnt < dataSize ; bytes_cnt++ )
+	for(bytesCnt = 0; bytesCnt < dataSize ; bytesCnt++ )
 	{
-		morse_sendByte(bytes[bytes_cnt]);
+		morse_sendByte(bytes[bytesCnt]);
 		morse_sendDots(2,0); // send 2 more dots so became total of 3 dots
 	}
 
@@ -243,7 +243,7 @@ void morse_send(uint8_t* bytes)
 //{
 //	// TODO: check initialization of static variables
 //	static volatile uint16_t bytes_cnt =0;
-//	static volatile uint16_t dot_cnt =0;
+//	static volatile uint16_t dotCnt =0;
 //	static volatile uint8_t dot_sent = 0;
 //	volatile uint16_t MAX_DATA_SIZE;
 //
@@ -253,50 +253,50 @@ void morse_send(uint8_t* bytes)
 //	if( bytes_cnt < MAX_DATA_SIZE)
 //	{
 //
-//		volatile uint8_t conv_index;
+//		volatile uint8_t convIndex;
 //
 //		//if Capital Alphabet letter
 //		if(bytes[bytes_cnt] >= 'A' && bytes[bytes_cnt] <= 'Z')
 //		{
-//			conv_index = 52;
+//			convIndex = 52;
 //		}
 //
 //		//if numbers
 //		if(bytes[bytes_cnt] >= '0' && bytes[bytes_cnt] <= '9')
 //		{
-//			conv_index = 45;
+//			convIndex = 45;
 //		}
 //
 //		//if Capital Alphabet letter
 //		if(bytes[bytes_cnt] == ',' )
 //		{
-//			conv_index = 42;
+//			convIndex = 42;
 //		}
 //
 //		//if Capital Alphabet letter
 //		if(bytes[bytes_cnt] == '.' )
 //		{
-//			conv_index = 45;
+//			convIndex = 45;
 //		}
 //
 //		if(bytes[bytes_cnt] == ' ' )
 //		{
-//			dot_cnt = 0;
+//			dotCnt = 0;
 //			bytes_cnt++;
 //			morse_sendDots(4,0);
 //			return;
 //		}
 //
-//		volatile uint8_t total_dots = size[bytes[bytes_cnt]-conv_index];
-//		volatile uint8_t converted = code[bytes[bytes_cnt]-conv_index];
+//		volatile uint8_t totalDots = size[bytes[bytes_cnt]-convIndex];
+//		volatile uint8_t converted = code[bytes[bytes_cnt]-convIndex];
 //
-//		if( dot_cnt < total_dots ) // count dots with pause added
+//		if( dotCnt < totalDots ) // count dots with pause added
 //		{
 //			if(dot_sent == 0)
 //			{
 //				dot_sent = 1;
 //				//check dash(1) or dot(0) from MSB
-//				if ((converted >> (total_dots - dot_cnt - 1)) & 0x01)
+//				if ((converted >> (totalDots - dotCnt - 1)) & 0x01)
 //				{
 //					// 3 dots
 //					morse_sendDots(3,1);
@@ -313,7 +313,7 @@ void morse_send(uint8_t* bytes)
 //			if(dot_sent == 1)
 //			{
 //				dot_sent = 0;
-//				dot_cnt++;
+//				dotCnt++;
 //				// if dots are sent
 //				// send 1 dot pause
 //				morse_sendDots(1,0);
@@ -322,7 +322,7 @@ void morse_send(uint8_t* bytes)
 //		}
 //		else // if a byte is sent
 //		{
-//				dot_cnt = 0;
+//				dotCnt = 0;
 //				bytes_cnt++;
 //				morse_sendDots(2,0); // send 2 more dots so became total of 3 dots
 //				return;
@@ -330,7 +330,7 @@ void morse_send(uint8_t* bytes)
 //	}
 //	else // if all bytes are sent
 //	{
-//		dot_cnt = 0;
+//		dotCnt = 0;
 //		bytes_cnt = 0;
 //		adf7012_disable();
 //		return;

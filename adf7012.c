@@ -54,7 +54,7 @@ struct {
     } r3;
 } adf_config;
 
-void adf7012_setup(void)
+void adf7012_portSetup(void)
 {
 	// default pin state
 	P1OUT &= ~BEACON_DATA_PIN;

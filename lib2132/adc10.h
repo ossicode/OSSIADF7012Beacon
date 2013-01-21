@@ -12,7 +12,7 @@
 
 
 #define ADC10_PIN_2_0		        (BIT0)
-#define ADC10_PIN_2_1              (BIT1)
+#define ADC10_PIN_2_1              	(BIT1)
 #define ADC10_PIN_2_2              	(BIT2)
 #define ADC10_PIN_2_3              	(BIT3)
 #define ADC10_PIN_2_4              	(BIT4)

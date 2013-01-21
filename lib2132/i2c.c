@@ -719,7 +719,7 @@ __interrupt void USCIAB0RX_ISR(void)
 	   {
 		   i2cSlaveRxInProgress = 0;
 		   i2cSlaveRxDone = 1;
-		   // TODO: fixt exit LPM policiy
+		   // TODO: fix exit LPM policy
 		   __bic_SR_register_on_exit(LPM3_bits);
 	   }
 
@@ -787,6 +787,8 @@ __interrupt void USCIAB0TX_ISR(void)
 			   else
 			   {
 				   // if internal address is not matched, set to default address
+				   // TODO when internal address is not matched
+				   // this is possibly Command from I2C Master
 				   i2cInteralAddress = 0x00;
 				   slaveIndex = 0;
 				   // from the datasheet, USART module cannot send NACK when in Slave mode

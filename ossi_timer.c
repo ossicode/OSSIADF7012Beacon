@@ -80,7 +80,7 @@ uint32_t systimer_getSecTick(void)
 void systimer_msDelay(uint16_t msDelay)
 {
 	sysMsDelay = msDelay;
-	sysMsDelayTick =0;
+	sysMsDelayTick = 0;
 	sysMsDelayOn = 1;
 	while(sysMsDelayOn);
 }
