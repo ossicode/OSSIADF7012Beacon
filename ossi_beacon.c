@@ -11,12 +11,7 @@
 #define BEACON_MAIN_MODE		(0)
 #define BEACON_STAND_ALONE_MODE	(1)
 
-//obcLatchUpData_t latchUpData;
-//obcEpsData_t epsData;
-//obcAdcData_t adcData;
-//obcTempData_t tempData;
-//obcTimeData_t timeData;
-
+#define BEACON_DATA_SIZE (80)
 static uint8_t beaconData[80]={0};
 static uint8_t beaconPacket[64] ={0};
 
@@ -79,37 +74,16 @@ void beacon_init(void)
 	P3OUT &= ~LED_PIN;
 	P3DIR |= LED_PIN;
 
-	// initialize obcData
-//	volatile uint8_t i;
-//	for(i = 0 ; i < OBC_LATCH_UP_DATA_SIZE; i++)
-//	{
-//		latchUpData.data[i] = 3;
-//	}
-//
-//	for(i = 0 ; i < OBC_EPS_DATA_SIZE; i++)
-//	{
-//		epsData.data[i] = 3;
-//	}
-//
-//	for(i = 0 ; i < OBC_ADC_DATA_SIZE; i++)
-//	{
-//		adcData.data[i] = 3;
-//	}
-//
-//	for(i = 0 ; i < OBC_TEMP_DATA_SIZE; i++)
-//	{
-//		tempData.data[i] = 3;
-//	}
-//
-//	for(i = 0 ; i < OBC_TIME_DATA_SIZE; i++)
-//	{
-//		timeData.data[i] = 3;
-//	}
+	volatile uint8_t i;
+	for(i = 0; i< BEACON_DATA_SIZE ; i++)
+	{
+		becaonData[i] = 0;
+	}
 
 	// init beacon Status
-	beaconData[BEACON_PLL_LOCKED] = PLL_NOT_LOCKED;
-	beaconData[BEACON_PA_FAULT] = PA_NOT_FAULT;
-	beaconData[BEACON_MORSE_STATUS] = MORSE_STAND_BY;
+	beaconData[BEACON_PLL_LOCKED_ADDR] = PLL_NOT_LOCKED;
+	beaconData[BEACON_PA_FAULT_ADDR] = PA_NOT_FAULT;
+	beaconData[BEACON_MORSE_STATUS_ADDR] = MORSE_STAND_BY;
 
 	// i2c slave start
 	i2c_portSetup();
@@ -120,9 +94,11 @@ void beacon_init(void)
 void beacon_taskSchedule(void)
 {
 
-	if (becaonData[OBC_BEACON_CMD1] == MORSE_SEND)
+	if (beaconData[OBC_BEACON_CMD1_ADDR] == MORSE_SEND_START)
 	{
-		beaconData[BEACON_MORSE_STATUS] = 0;
+		beaconData[OBC_BEACON_CMD1_ADDR] = OBC_CMD1_CLEAR;
+		beaconData[BEACON_MORSE_STATUS_ADDR] = MORSE_PACKET_0_SENDING;
+		beaconPacketNum = 0;
 	}
 	beaconPacketNum++;
 
@@ -146,21 +122,21 @@ void beacon_makePacket(void)
 	adc10_setVolReference(ADC10_REF_VCC_VSS);
 	// check VBUS
 	adcValue[0] =  adc10_readChannel(0);
-	beaconData[BEACON_VBUS_DATA0] = adcValue[0] & 0xFF; // LSB
-	beaconData[BEACON_VBUS_DATA1] = (adcValue[0] >> 8) & 0xFF; // MSB
+	beaconData[BEACON_VBUS_DATA0_ADDR] = adcValue[0] & 0xFF; // LSB
+	beaconData[BEACON_VBUS_DATA1_ADDR] = (adcValue[0] >> 8) & 0xFF; // MSB
 	// if VBUS -> do something
 	// check ADC1
 	adcValue[1] =  adc10_readChannel(1);
-	beaconData[BEACON_ADC1_DATA0] = adcValue[1] & 0xFF; // LSB
-	beaconData[BEACON_ADC1_DATA1] = (adcValue[1] >> 8) & 0xFF; // MSB
+	beaconData[BEACON_ADC1_DATA0_ADDR] = adcValue[1] & 0xFF; // LSB
+	beaconData[BEACON_ADC1_DATA1_ADDR] = (adcValue[1] >> 8) & 0xFF; // MSB
 	// if ADC1 -> do something
 	// check beacon MCU temp.
 	adcValue[2] =  adc10_readChannel(10);
-	beaconData[BEACON_TEMP_DATA0] = adcValue[2] & 0xFF; // LSB
-	beaconData[BEACON_TEMP_DATA1] = (adcValue[2] >> 8) & 0xFF; // MSB
+	beaconData[BEACON_TEMP_DATA0_ADDR] = adcValue[2] & 0xFF; // LSB
+	beaconData[BEACON_TEMP_DATA1_ADDR] = (adcValue[2] >> 8) & 0xFF; // MSB
 	// adc10_offInternalVolReference(); // turn of reference if internal reference is used
 
-	switch(packetNum)
+	switch(beaconPacketNum)
 	{
 	case 0:
 		break;
