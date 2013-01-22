@@ -107,13 +107,19 @@
 #define MORSE_PACKET_3_SENDING	(131)
 #define MORSE_PACKET_4_SENDING	(132)
 #define MORSE_PACKET_5_SENDING	(133)
-#define MORSE_PACKET_6_SENDING	(134)
-#define MORSE_SEND_DONE			(135)
+
+#define MORSE_PACKET_0_SENT		(156)
+#define MORSE_PACKET_1_SENT		(157)
+#define MORSE_PACKET_2_SENT		(158)
+#define MORSE_PACKET_3_SENT		(159)
+#define MORSE_PACKET_4_SENT		(160)
+#define MORSE_PACKET_5_SENT		(161)
 
 // OBC_BEACON_CMD1_ADDR
 #define OBC_CMD1_CLEAR			(0)
 #define MORSE_SEND_START		(128)
 #define MORSE_SEND_STOP			(129)
+
 
 
 //typedef union {
@@ -188,7 +194,10 @@
 //} obcTimeData_t;
 
 
-void beacon_portSetup(void);
 void beacon_init(void);
+void beacon_taskSchedule(void);
+void beacon_makePacket(void);
+uint8_t beacon_morseSend(void);
+
 
 #endif /* OSSIBEACON_H_ */

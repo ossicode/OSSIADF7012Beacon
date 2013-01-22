@@ -12,20 +12,23 @@
 #define BEACON_STAND_ALONE_MODE	(1)
 
 #define BEACON_DATA_SIZE 		(80)
+uint8_t beaconData[BEACON_DATA_SIZE]={0};
 
-static uint8_t beaconData[BEACON_DATA_SIZE]={0};
-static uint8_t beaconPacket[64] ={0};
+uint8_t beaconPacket[64] ={0};
+
+static const char hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
 static volatile uint8_t beaconMode;
-static volatile uint8_t beaconPacketNum;
+static volatile  uint8_t beaconPacketNum;
 
 void beacon_portSetup(void)
 {
 	// default GPIO setup
-	// set every pins to GPIO
-	P1SEL = 0x00;
-	P2SEL = 0x00;
-	P3SEL = 0x00;
+	// TODO: Some pins are for LFXT1CLK
+	// DO NOT MAKE ALL PINS TO GPIO!!!!!!
+//	P1SEL = 0x00;
+//	P2SEL = 0x00;
+//	P3SEL = 0x00;
 
 	// Set all to input
 	P1DIR = 0x00;
@@ -82,14 +85,20 @@ void beacon_init(void)
 		beaconData[i] = 0;
 	}
 
+	for (i = 0; i< 64; i++)
+	{
+		beaconPacket[i] = 0;
+	}
+
 	// init beacon Status
 	beaconData[BEACON_PLL_LOCKED_ADDR] = PLL_NOT_LOCKED;
 	beaconData[BEACON_PA_FAULT_ADDR] = PA_NOT_FAULT;
 	beaconData[BEACON_MORSE_STATUS_ADDR] = MORSE_STAND_BY;
 
+	printf("started");
 	// i2c slave start
 	i2c_portSetup();
-	i2c_slaveInit(0x49, 64, beaconData);
+	i2c_slaveInit(0x49, 80, beaconData);
 	i2c_slaveStart();
 }
 
@@ -99,24 +108,13 @@ void beacon_taskSchedule(void)
 	if (beaconData[OBC_BEACON_CMD1_ADDR] == MORSE_SEND_START)
 	{
 		beaconData[OBC_BEACON_CMD1_ADDR] = OBC_CMD1_CLEAR;
-		beaconData[BEACON_MORSE_STATUS_ADDR] = MORSE_PACKET_0_SENDING;
-		beaconPacketNum = 0;
+		beacon_makePacket();
+		morse_init();
+		beacon_morseSend();
 	}
-	beaconPacketNum++;
-
 }
 
 uint8_t beacon_healthCheck(void)
-{
-	uint8_t result;
-	// check ADF PLL
-
-
-	if (result == ERROR) {return result;}
-	return SUCCESS;
-}
-
-void beacon_makePacket(void)
 {
 	uint8_t result;
 	uint16_t adcValue[3];
@@ -138,12 +136,43 @@ void beacon_makePacket(void)
 	beaconData[BEACON_TEMP_DATA1_ADDR] = (adcValue[2] >> 8) & 0xFF; // MSB
 	// adc10_offInternalVolReference(); // turn of reference if internal reference is used
 
-	switch(beaconPacketNum)
+	// check ADF PLL
+
+
+	if (result == ERROR) {return result;}
+	return SUCCESS;
+}
+
+
+
+void beacon_makePacket(void)
+{
+	#define HEADER_SIZE	(4)
+
+//	uint8_t packetHeader[HEADER_SIZE]={'G','O','D',beaconPacketNum + 48};
+	uint8_t packetHeader[HEADER_SIZE]={'G','O','D','0'};
+	volatile uint8_t i;
+
+
+	for (i = 0; i< 64; i++)
 	{
-	case 0:
-		break;
-	default:
-		break;
+		beaconPacket[i] = 0;
+	}
+
+	for( i = 0 ; i < HEADER_SIZE; i++)
+	{
+		beaconPacket[i] = packetHeader[i];
+	}
+
+
+
+	// ADC PACKET
+
+	for( i = 0 ; i < OBC_ADC_DATA_SIZE; i++)
+	{
+		// change 1 HEX to 2 ASCII
+		beaconPacket[2*i+HEADER_SIZE] = hex[(beaconData[i+OBC_ADC_DATA_ADDR] >> 4) & 0x0F]; // Upper
+		beaconPacket[2*i+1+HEADER_SIZE] = hex[beaconData[i+OBC_ADC_DATA_ADDR] & 0x0F]; // Lower
 	}
 
 }
@@ -151,7 +180,9 @@ void beacon_makePacket(void)
 uint8_t beacon_morseSend(void)
 {
 	uint8_t result;
+	beaconData[BEACON_MORSE_STATUS_ADDR] = MORSE_PACKET_0_SENDING;
 	morse_send(beaconPacket);
+	beaconData[BEACON_MORSE_STATUS_ADDR] = MORSE_PACKET_0_SENT;
 	if (result == ERROR) {return result;}
 	return SUCCESS;
 }

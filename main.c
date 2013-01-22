@@ -21,8 +21,8 @@ void main(void)
 
 		// beacon wakes up after receiving data from OBC
 		beacon_taskSchedule();
-		beacon_makePacket();
-		beacon_morseSend();
+//		beacon_makePacket();
+//		beacon_morseSend();
 
 //		if(i2c_getSlaveRxDone())
 //		{

@@ -29,6 +29,4 @@ void putc(unsigned);
 void puts(char *);
 
 
-
-
 #endif /* ACLKUART_H_ */

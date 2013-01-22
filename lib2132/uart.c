@@ -13,8 +13,9 @@ volatile uint8_t uart_rxByte = '\0';
 // read chapter 15.3.10 of msp430x2xxx user's guide for baud rate generation
 void uart_initACLK9600(void)
 {
+	UCA0CTL1 |= UCSWRST;
 	P3SEL = 0x30;                             // P3.4,5 = USCI_A0 TXD/RXD, No need to set IO direction
-	UCA0CTL1 |= UCSSEL_1;                     // CLK = ACLK
+	UCA0CTL1 |= UCSSEL_1+UCSWRST;                     // CLK = ACLK
 	UCA0BR0 = 0x03;                           // 3 = INT(3.41), 32.768kHz/9600 = 3.41
 	UCA0BR1 = 0x00;                           //
 	UCA0MCTL = UCBRS1 + UCBRS0;               // Modulation UCBRSx = 3 = round(0.41 * 8)
@@ -23,8 +24,9 @@ void uart_initACLK9600(void)
 
 void uart_initACLK4800(void)
 {
+	UCA0CTL1 |= UCSWRST;
 	P3SEL = 0x30;                             // P3.4,5 = USCI_A0 TXD/RXD, No need to set IO direction
-	UCA0CTL1 |= UCSSEL_1;                     // CLK = ACLK
+	UCA0CTL1 |= UCSSEL_1+UCSWRST;                     // CLK = ACLK
 	UCA0BR0 = 0x06;                           // 6 = INT(6.83), 32.768kHz/4800 = 6.83
 	UCA0BR1 = 0x00;                           //
 	UCA0MCTL = UCBRS2 + UCBRS1 + UCBRS0;      // Modulation UCBRSx = 7 = round(0.83 * 8)
