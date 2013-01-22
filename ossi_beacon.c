@@ -11,10 +11,9 @@
 #define BEACON_MAIN_MODE		(0)
 #define BEACON_STAND_ALONE_MODE	(1)
 
-#define OBC_DATA_SIZE			(64)
-#define BEACON_DATA_SIZE 		(16)
+#define BEACON_DATA_SIZE 		(80)
 
-static uint8_t beaconData[OBC_DATA_SIZE + BEACON_DATA_SIZE]={0};
+static uint8_t beaconData[BEACON_DATA_SIZE]={0};
 static uint8_t beaconPacket[64] ={0};
 
 static volatile uint8_t beaconMode;
@@ -78,7 +77,7 @@ void beacon_init(void)
 
 	// initi beacon data and status
 	volatile uint8_t i;
-	for(i = 0; i< (OBC_DATA_SIZE + BEACON_DATA_SIZE) ; i++)
+	for(i = 0; i< BEACON_DATA_SIZE ; i++)
 	{
 		beaconData[i] = 0;
 	}
