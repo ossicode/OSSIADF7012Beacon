@@ -140,27 +140,27 @@ void morse_sendDots(uint8_t dots, uint8_t val)
 		P1OUT &= ~BEACON_DATA_PIN;
 		P3OUT &= ~LED_PIN;
 	}
-	systimer_msDelay(dots * 100);
+	systimer_msDelay(dots * 100); // 100 ms = 1 dot -> 12 WPM
 //	morse_timerStart();
 }
 
-void morse_sendDotsLowpower(uint8_t dots, uint8_t val)
-{
-//	totalDotLength = 0;
-//	totalDotLength = dots;
-	if (val)
-	{
-		adf7012_OOK(val);
-		P3OUT |= LED_PIN;
-	}
-	else
-	{
-		adf7012_OOK(val);
-		P3OUT &= ~LED_PIN;
-	}
-	systimer_msDelay(dots*100);
-//	morse_timerStart();
-}
+//void morse_sendDotsLowpower(uint8_t dots, uint8_t val)
+//{
+////	totalDotLength = 0;
+////	totalDotLength = dots;
+//	if (val)
+//	{
+//		adf7012_OOK(val);
+//		P3OUT |= LED_PIN;
+//	}
+//	else
+//	{
+//		adf7012_OOK(val);
+//		P3OUT &= ~LED_PIN;
+//	}
+//	systimer_msDelay(dots*100);
+////	morse_timerStart();
+//}
 
 void morse_sendByte(uint8_t byte)
 {

@@ -11,10 +11,11 @@
 #define BEACON_MAIN_MODE		(0)
 #define BEACON_STAND_ALONE_MODE	(1)
 
-#define BEACON_DATA_SIZE 		(80)
+#define BEACON_DATA_SIZE 		(64)
 uint8_t beaconData[BEACON_DATA_SIZE]={0};
 
-uint8_t beaconPacket[64] ={0};
+#define BEACON_PACKET_SIZE		(64)
+uint8_t beaconPacket[BEACON_PACKET_SIZE] ={0};
 
 static const char hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
@@ -85,29 +86,24 @@ void beacon_init(void)
 		beaconData[i] = 0;
 	}
 
-	for (i = 0; i< 64; i++)
+	for (i = 0; i< BEACON_PACKET_SIZE; i++)
 	{
 		beaconPacket[i] = 0;
 	}
 
-	// init beacon Status
-	beaconData[BEACON_PLL_LOCKED_ADDR] = PLL_NOT_LOCKED;
-	beaconData[BEACON_PA_FAULT_ADDR] = PA_NOT_FAULT;
-	beaconData[BEACON_MORSE_STATUS_ADDR] = MORSE_STAND_BY;
 
-	printf("started");
 	// i2c slave start
 	i2c_portSetup();
-	i2c_slaveInit(0x49, 80, beaconData);
+	i2c_slaveInit(0x49, BEACON_DATA_SIZE, beaconData);
 	i2c_slaveStart();
 }
 
 void beacon_taskSchedule(void)
 {
 
-	if (beaconData[OBC_BEACON_CMD1_ADDR] == MORSE_SEND_START)
+	if (beaconData[BEACON_CMD1_ADDR] == MORSE_SEND_START)
 	{
-		beaconData[OBC_BEACON_CMD1_ADDR] = OBC_CMD1_CLEAR;
+		beaconData[BEACON_CMD1_ADDR] = BEACON_CMD1_CLEAR;
 		beacon_makePacket();
 		morse_init();
 		beacon_morseSend();
@@ -122,18 +118,15 @@ uint8_t beacon_healthCheck(void)
 	adc10_setVolReference(ADC10_REF_VCC_VSS);
 	// check VBUS
 	adcValue[0] =  adc10_readChannel(0);
-	beaconData[BEACON_VBUS_DATA0_ADDR] = adcValue[0] & 0xFF; // LSB
-	beaconData[BEACON_VBUS_DATA1_ADDR] = (adcValue[0] >> 8) & 0xFF; // MSB
+	beaconData[BEACON_VBUS_ADDR] = (adcValue[0] >> 2) & 0xFF; // LSB
 	// if VBUS -> do something
 	// check ADC1
 	adcValue[1] =  adc10_readChannel(1);
-	beaconData[BEACON_ADC1_DATA0_ADDR] = adcValue[1] & 0xFF; // LSB
-	beaconData[BEACON_ADC1_DATA1_ADDR] = (adcValue[1] >> 8) & 0xFF; // MSB
+	beaconData[BEACON_ADC1_ADDR] = (adcValue[1] >> 2)& 0xFF; // LSB
 	// if ADC1 -> do something
 	// check beacon MCU temp.
 	adcValue[2] =  adc10_readChannel(10);
-	beaconData[BEACON_TEMP_DATA0_ADDR] = adcValue[2] & 0xFF; // LSB
-	beaconData[BEACON_TEMP_DATA1_ADDR] = (adcValue[2] >> 8) & 0xFF; // MSB
+	beaconData[BEACON_TEMP_ADDR] = (adcValue[2] >> 2)& 0xFF; // LSB
 	// adc10_offInternalVolReference(); // turn of reference if internal reference is used
 
 	// check ADF PLL
@@ -154,7 +147,7 @@ void beacon_makePacket(void)
 	volatile uint8_t i;
 
 
-	for (i = 0; i< 64; i++)
+	for (i = 0; i< BEACON_PACKET_SIZE; i++)
 	{
 		beaconPacket[i] = 0;
 	}
@@ -168,11 +161,11 @@ void beacon_makePacket(void)
 
 	// ADC PACKET
 
-	for( i = 0 ; i < OBC_ADC_DATA_SIZE; i++)
+	for( i = 0 ; i < TEMP_DATA_SIZE; i++)
 	{
 		// change 1 HEX to 2 ASCII
-		beaconPacket[2*i+HEADER_SIZE] = hex[(beaconData[i+OBC_ADC_DATA_ADDR] >> 4) & 0x0F]; // Upper
-		beaconPacket[2*i+1+HEADER_SIZE] = hex[beaconData[i+OBC_ADC_DATA_ADDR] & 0x0F]; // Lower
+		beaconPacket[2*i+HEADER_SIZE] = hex[(beaconData[i+TEMP_DATA_ADDR] >> 4) & 0x0F]; // Upper
+		beaconPacket[2*i+1+HEADER_SIZE] = hex[beaconData[i+TEMP_DATA_ADDR] & 0x0F]; // Lower
 	}
 
 }
@@ -180,9 +173,9 @@ void beacon_makePacket(void)
 uint8_t beacon_morseSend(void)
 {
 	uint8_t result;
-	beaconData[BEACON_MORSE_STATUS_ADDR] = MORSE_PACKET_0_SENDING;
+	beaconData[BEACON_TX_STATUS_ADDR] = SENDING;
 	morse_send(beaconPacket);
-	beaconData[BEACON_MORSE_STATUS_ADDR] = MORSE_PACKET_0_SENT;
+	beaconData[BEACON_TX_STATUS_ADDR] = SENT;
 	if (result == ERROR) {return result;}
 	return SUCCESS;
 }
