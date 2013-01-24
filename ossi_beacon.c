@@ -11,8 +11,7 @@
 #define BEACON_MAIN_MODE		(0)
 #define BEACON_STAND_ALONE_MODE	(1)
 
-#define BEACON_DATA_SIZE 		(64)
-uint8_t beaconData[BEACON_DATA_SIZE]={0};
+uint8_t beaconData[OSSI_DATA_SIZE]={0};
 
 #define BEACON_PACKET_SIZE		(64)
 uint8_t beaconPacket[BEACON_PACKET_SIZE] ={0};
@@ -25,11 +24,11 @@ static volatile  uint8_t beaconPacketNum;
 void beacon_portSetup(void)
 {
 	// default GPIO setup
-	// TODO: Some pins are for LFXT1CLK
+	// Some pins are for LFXT1CLK P2SEL = 0xCo
 	// DO NOT MAKE ALL PINS TO GPIO!!!!!!
-//	P1SEL = 0x00;
-//	P2SEL = 0x00;
-//	P3SEL = 0x00;
+	P1SEL = 0x00;
+	P2SEL = 0xC0;
+	P3SEL = 0x00;
 
 	// Set all to input
 	P1DIR = 0x00;
@@ -81,7 +80,7 @@ void beacon_init(void)
 
 	// initi beacon data and status
 	volatile uint8_t i;
-	for(i = 0; i< BEACON_DATA_SIZE ; i++)
+	for(i = 0; i< OSSI_DATA_SIZE ; i++)
 	{
 		beaconData[i] = 0;
 	}
@@ -94,7 +93,7 @@ void beacon_init(void)
 
 	// i2c slave start
 	i2c_portSetup();
-	i2c_slaveInit(0x49, BEACON_DATA_SIZE, beaconData);
+	i2c_slaveInit(0x49, OSSI_DATA_SIZE, beaconData);
 	i2c_slaveStart();
 }
 
