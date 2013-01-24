@@ -22,7 +22,9 @@ static const uint8_t hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9
 static const uint8_t ossiBeaconHello[OSSI_HELLO_PACKET_SIZE]={'D','E',' ','O','S','S','I','1',' ','A','N','Y','O','U','N','G'};
 
 static volatile uint8_t beaconMode;
-static volatile  uint8_t beaconPacketNum;
+
+void beacon_makePacket(uint8_t num);
+uint8_t beacon_morseSend(void);
 
 void beacon_portSetup(void)
 {
@@ -110,7 +112,6 @@ uint8_t beacon_morseSend(void)
 	uint8_t result;
 	morse_init();
 	morse_send(beaconPacket);
-	beaconPacketNum++;
 
 	if (result == ERROR) {return result;}
 	return SUCCESS;
@@ -132,28 +133,30 @@ uint8_t beacon_getOBCData(uint8_t intAddr)
 	return obcData[intAddr];
 }
 
+
+
 void beacon_taskSchedule(void)
 {
 
 	if (beacon_getOBCData(BEACON_CMD1_ADDR) == MORSE_SEND_START)
 	{
+		// when command is received,
+		// let OBC know that the command is read
 		beacon_updateOBCData(BEACON_CMD1_ADDR, BEACON_CMD1_CLEAR);
-		beacon_updateOBCData(BEACON_TX_STATUS_ADDR, SENDING);
-		beaconPacketNum = 0;
-		beacon_makePacket();
-		beacon_morseSend();
-	}
-	if(beacon_getMorseStatus() == MORSE_SENDING)
-	{
-		beacon_makePacket();
-		beacon_morseSend();
-		if (beaconPacketNum > 5)
+
+		volatile uint8_t packetNum;
+
+		for (packetNum = 0 ; packetNum < 6 ; packetNum++)
 		{
-			beaconPacketNum = 0;
-			beacon_morseStop();
+			beacon_makePacket(packetNum);
+			beacon_updateOBCData(BEACON_TX_STATUS_ADDR, SENDING);
+			beacon_morseSend();
 			beacon_updateOBCData(BEACON_TX_STATUS_ADDR, SENT);
 		}
+		beacon_morseStop();
+		beacon_updateOBCData(BEACON_TX_STATUS_ADDR, SENT);
 	}
+
 }
 
 uint8_t beacon_healthCheck(void)
@@ -184,13 +187,13 @@ uint8_t beacon_healthCheck(void)
 
 
 
-void beacon_makePacket(void)
+void beacon_makePacket(uint8_t num)
 {
 	#define HEADER_SIZE	(3)
 
 	uint8_t packetHeader[HEADER_SIZE]={'O','S',0};
 	// Header Number
-	packetHeader[HEADER_SIZE-1] = beaconPacketNum;
+	packetHeader[HEADER_SIZE-1] = num;
 
 	volatile uint8_t i;
 	for (i = 0; i< BEACON_PACKET_SIZE; i++)
@@ -209,8 +212,8 @@ void beacon_makePacket(void)
 		beaconPacket[i+HEADER_SIZE] = ossiBeaconHello[i];
 	}
 
-	// TEMP DATA PACKET
 
+	// TEMP DATA PACKET
 	for( i = 0 ; i < TEMP_DATA_SIZE; i++)
 	{
 		// change 1 HEX to 2 ASCII

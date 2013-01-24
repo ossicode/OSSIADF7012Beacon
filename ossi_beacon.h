@@ -59,8 +59,7 @@
 
 void beacon_init(void);
 void beacon_taskSchedule(void);
-void beacon_makePacket(void);
-uint8_t beacon_morseSend(void);
+
 
 
 #endif /* OSSIBEACON_H_ */
