@@ -87,7 +87,7 @@ void beacon_dataProcessing(void)
 
 void beacon_dataSend(void) // timer0 related handler
 {
-	if(morse_isReady())
+	if(morse_getStatus())
 	{
 		// clear the flag
 		morse_clearSendFlag();

@@ -8,15 +8,18 @@
 #include "ossi_beacon.h"
 
 
-#define BEACON_MAIN_MODE		(0)
+#define BEACON_NORMAL_MODE		(0)
 #define BEACON_STAND_ALONE_MODE	(1)
 
-uint8_t beaconData[OSSI_DATA_SIZE]={0};
+uint8_t obcData[OSSI_DATA_SIZE]={0};
 
 #define BEACON_PACKET_SIZE		(64)
 uint8_t beaconPacket[BEACON_PACKET_SIZE] ={0};
 
-static const char hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+static const uint8_t hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+
+#define OSSI_HELLO_PACKET_SIZE (16)
+static const uint8_t ossiBeaconHello[OSSI_HELLO_PACKET_SIZE]={'D','E',' ','O','S','S','I','1',' ','A','N','Y','O','U','N','G'};
 
 static volatile uint8_t beaconMode;
 static volatile  uint8_t beaconPacketNum;
@@ -82,7 +85,7 @@ void beacon_init(void)
 	volatile uint8_t i;
 	for(i = 0; i< OSSI_DATA_SIZE ; i++)
 	{
-		beaconData[i] = 0;
+		obcData[i] = 0;
 	}
 
 	for (i = 0; i< BEACON_PACKET_SIZE; i++)
@@ -93,19 +96,63 @@ void beacon_init(void)
 
 	// i2c slave start
 	i2c_portSetup();
-	i2c_slaveInit(0x49, OSSI_DATA_SIZE, beaconData);
+	i2c_slaveInit(0x49, OSSI_DATA_SIZE, obcData);
 	i2c_slaveStart();
+}
+
+uint8_t beacon_getMorseStatus(void)
+{
+	return morse_getStatus();
+}
+
+uint8_t beacon_morseSend(void)
+{
+	uint8_t result;
+	morse_init();
+	morse_send(beaconPacket);
+	beaconPacketNum++;
+
+	if (result == ERROR) {return result;}
+	return SUCCESS;
+}
+
+uint8_t beacon_morseStop(void)
+{
+	morse_stop();
+}
+
+
+void beacon_updateOBCData(uint8_t intAddr, uint8_t value)
+{
+	obcData[intAddr] = value;
+}
+
+uint8_t beacon_getOBCData(uint8_t intAddr)
+{
+	return obcData[intAddr];
 }
 
 void beacon_taskSchedule(void)
 {
 
-	if (beaconData[BEACON_CMD1_ADDR] == MORSE_SEND_START)
+	if (beacon_getOBCData(BEACON_CMD1_ADDR) == MORSE_SEND_START)
 	{
-		beaconData[BEACON_CMD1_ADDR] = BEACON_CMD1_CLEAR;
+		beacon_updateOBCData(BEACON_CMD1_ADDR, BEACON_CMD1_CLEAR);
+		beacon_updateOBCData(BEACON_TX_STATUS_ADDR, SENDING);
+		beaconPacketNum = 0;
 		beacon_makePacket();
-		morse_init();
 		beacon_morseSend();
+	}
+	if(beacon_getMorseStatus() == MORSE_SENDING)
+	{
+		beacon_makePacket();
+		beacon_morseSend();
+		if (beaconPacketNum > 5)
+		{
+			beaconPacketNum = 0;
+			beacon_morseStop();
+			beacon_updateOBCData(BEACON_TX_STATUS_ADDR, SENT);
+		}
 	}
 }
 
@@ -117,15 +164,15 @@ uint8_t beacon_healthCheck(void)
 	adc10_setVolReference(ADC10_REF_VCC_VSS);
 	// check VBUS
 	adcValue[0] =  adc10_readChannel(0);
-	beaconData[BEACON_VBUS_ADDR] = (adcValue[0] >> 2) & 0xFF; // LSB
+	obcData[BEACON_VBUS_ADDR] = (adcValue[0] >> 2) & 0xFF; // LSB
 	// if VBUS -> do something
 	// check ADC1
 	adcValue[1] =  adc10_readChannel(1);
-	beaconData[BEACON_ADC1_ADDR] = (adcValue[1] >> 2)& 0xFF; // LSB
+	obcData[BEACON_ADC1_ADDR] = (adcValue[1] >> 2)& 0xFF; // LSB
 	// if ADC1 -> do something
 	// check beacon MCU temp.
 	adcValue[2] =  adc10_readChannel(10);
-	beaconData[BEACON_TEMP_ADDR] = (adcValue[2] >> 2)& 0xFF; // LSB
+	obcData[BEACON_TEMP_ADDR] = (adcValue[2] >> 2)& 0xFF; // LSB
 	// adc10_offInternalVolReference(); // turn of reference if internal reference is used
 
 	// check ADF PLL
@@ -139,13 +186,13 @@ uint8_t beacon_healthCheck(void)
 
 void beacon_makePacket(void)
 {
-	#define HEADER_SIZE	(4)
+	#define HEADER_SIZE	(3)
 
-//	uint8_t packetHeader[HEADER_SIZE]={'G','O','D',beaconPacketNum + 48};
-	uint8_t packetHeader[HEADER_SIZE]={'G','O','D','0'};
+	uint8_t packetHeader[HEADER_SIZE]={'O','S',0};
+	// Header Number
+	packetHeader[HEADER_SIZE-1] = beaconPacketNum;
+
 	volatile uint8_t i;
-
-
 	for (i = 0; i< BEACON_PACKET_SIZE; i++)
 	{
 		beaconPacket[i] = 0;
@@ -156,28 +203,24 @@ void beacon_makePacket(void)
 		beaconPacket[i] = packetHeader[i];
 	}
 
+	// OSSI Anyoung PACKET 0
+	for (i = 0 ; i < OSSI_HELLO_PACKET_SIZE ; i++)
+	{
+		beaconPacket[i+HEADER_SIZE] = ossiBeaconHello[i];
+	}
 
-
-	// ADC PACKET
+	// TEMP DATA PACKET
 
 	for( i = 0 ; i < TEMP_DATA_SIZE; i++)
 	{
 		// change 1 HEX to 2 ASCII
-		beaconPacket[2*i+HEADER_SIZE] = hex[(beaconData[i+TEMP_DATA_ADDR] >> 4) & 0x0F]; // Upper
-		beaconPacket[2*i+1+HEADER_SIZE] = hex[beaconData[i+TEMP_DATA_ADDR] & 0x0F]; // Lower
+		beaconPacket[2*i+HEADER_SIZE] = hex[(obcData[i+TEMP_DATA_ADDR] >> 4) & 0x0F]; // Upper
+		beaconPacket[2*i+1+HEADER_SIZE] = hex[obcData[i+TEMP_DATA_ADDR] & 0x0F]; // Lower
 	}
 
 }
 
-uint8_t beacon_morseSend(void)
-{
-	uint8_t result;
-	beaconData[BEACON_TX_STATUS_ADDR] = SENDING;
-	morse_send(beaconPacket);
-	beaconData[BEACON_TX_STATUS_ADDR] = SENT;
-	if (result == ERROR) {return result;}
-	return SUCCESS;
-}
+
 
 void beacon_setOpMode(uint8_t mode)
 {
