@@ -153,6 +153,7 @@ void beacon_taskSchedule(void)
 			beacon_morseSend();
 			beacon_updateOBCData(BEACON_TX_STATUS_ADDR, SENT);
 		}
+		// stop morse after sending all packets
 		beacon_morseStop();
 		beacon_updateOBCData(BEACON_TX_STATUS_ADDR, SENT);
 	}
@@ -196,31 +197,76 @@ void beacon_makePacket(uint8_t num)
 	packetHeader[HEADER_SIZE-1] = num;
 
 	volatile uint8_t i;
+	// clear previous beacon Packet
 	for (i = 0; i< BEACON_PACKET_SIZE; i++)
 	{
 		beaconPacket[i] = 0;
 	}
 
+	// add packet number
 	for( i = 0 ; i < HEADER_SIZE; i++)
 	{
 		beaconPacket[i] = packetHeader[i];
 	}
 
-	// OSSI Anyoung PACKET 0
-	for (i = 0 ; i < OSSI_HELLO_PACKET_SIZE ; i++)
+	switch(num)
 	{
-		beaconPacket[i+HEADER_SIZE] = ossiBeaconHello[i];
+	case 0:
+		// OSSI Anyoung PACKET
+		for (i = 0 ; i < OSSI_HELLO_PACKET_SIZE ; i++)
+		{
+			beaconPacket[i+HEADER_SIZE] = ossiBeaconHello[i];
+		}
+		break;
+
+	case 1:
+		// STATUS DATA PACKET
+		for( i = 0 ; i < STATUS_DATA_SIZE; i++)
+		{
+			// change 1 HEX to 2 ASCII
+			beaconPacket[2*i+HEADER_SIZE] = hex[(obcData[i+STATUS_DATA_ADDR] >> 4) & 0x0F]; // Upper
+			beaconPacket[2*i+1+HEADER_SIZE] = hex[obcData[i+STATUS_DATA_ADDR] & 0x0F]; // Lower
+		}
+		break;
+	case 2:
+		// VI DATA PACKET
+		for( i = 0 ; i < VI_DATA_SIZE; i++)
+		{
+			// change 1 HEX to 2 ASCII
+			beaconPacket[2*i+HEADER_SIZE] = hex[(obcData[i+VI_DATA_ADDR] >> 4) & 0x0F]; // Upper
+			beaconPacket[2*i+1+HEADER_SIZE] = hex[obcData[i+VI_DATA_ADDR] & 0x0F]; // Lower
+		}
+		break;
+	case 3:
+		// TEMP DATA PACKET
+		for( i = 0 ; i < TEMP_DATA_SIZE; i++)
+		{
+			// change 1 HEX to 2 ASCII
+			beaconPacket[2*i+HEADER_SIZE] = hex[(obcData[i+TEMP_DATA_ADDR] >> 4) & 0x0F]; // Upper
+			beaconPacket[2*i+1+HEADER_SIZE] = hex[obcData[i+TEMP_DATA_ADDR] & 0x0F]; // Lower
+		}
+		break;
+	case 4:
+		// MODULE DATA PACKET
+		for( i = 0 ; i < MODULE_DATA_SIZE; i++)
+		{
+			// change 1 HEX to 2 ASCII
+			beaconPacket[2*i+HEADER_SIZE] = hex[(obcData[i+MODULE_DATA_ADDR] >> 4) & 0x0F]; // Upper
+			beaconPacket[2*i+1+HEADER_SIZE] = hex[obcData[i+MODULE_DATA_ADDR] & 0x0F]; // Lower
+		}
+		break;
+	case 5:
+		// LEDTIME DATA PACKET
+		for( i = 0 ; i < LEDTIME_DATA_SIZE; i++)
+		{
+			// change 1 HEX to 2 ASCII
+			beaconPacket[2*i+HEADER_SIZE] = hex[(obcData[i+LEDTIME_DATA_ADDR] >> 4) & 0x0F]; // Upper
+			beaconPacket[2*i+1+HEADER_SIZE] = hex[obcData[i+LEDTIME_DATA_ADDR] & 0x0F]; // Lower
+		}
+		break;
+	default:
+		break;
 	}
-
-
-	// TEMP DATA PACKET
-	for( i = 0 ; i < TEMP_DATA_SIZE; i++)
-	{
-		// change 1 HEX to 2 ASCII
-		beaconPacket[2*i+HEADER_SIZE] = hex[(obcData[i+TEMP_DATA_ADDR] >> 4) & 0x0F]; // Upper
-		beaconPacket[2*i+1+HEADER_SIZE] = hex[obcData[i+TEMP_DATA_ADDR] & 0x0F]; // Lower
-	}
-
 }
 
 
