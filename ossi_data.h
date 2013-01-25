@@ -83,7 +83,7 @@ typedef union {
 		uint8_t obcTick1;
 		uint8_t obcTick0;
 	} u8;
-} generaStatus_t;
+} statusData_t;
 
 typedef union {
 	uint8_t data[VI_DATA_SIZE];
