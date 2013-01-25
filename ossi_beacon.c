@@ -188,7 +188,9 @@ void beacon_taskSchedule(void)
 		{
 			beacon_makePacket(packetNum);
 			beacon_updateOBCData(BEACON_TX_STATUS_ADDR, SENDING);
+			beacon_setExtWdtToggle();
 			beacon_morseSend();
+			beacon_setExtWdtToggle();
 			beacon_updateOBCData(BEACON_TX_STATUS_ADDR, SENT);
 		}
 		// stop morse after sending all packets
@@ -226,11 +228,11 @@ uint8_t beacon_healthCheck(void)
 
 void beacon_makePacket(uint8_t num)
 {
-	#define HEADER_SIZE	(3)
+	#define HEADER_SIZE	(4)
 
-	uint8_t packetHeader[HEADER_SIZE]={'O','S',0};
+	uint8_t packetHeader[HEADER_SIZE]={'O','S',0,' '};
 	// Header Number
-	packetHeader[HEADER_SIZE-1] = num;
+	packetHeader[HEADER_SIZE-2] = num + 48;
 
 	volatile uint8_t i;
 	// clear previous beacon Packet
