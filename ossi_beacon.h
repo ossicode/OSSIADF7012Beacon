@@ -56,10 +56,8 @@
 #define PA_ON_PIN					(BIT6)
 #define BEACON_CE_PIN				(BIT7)
 
-
 void beacon_init(void);
+void beacon_taskSchedulePeriod(uint8_t sec);
 void beacon_taskSchedule(void);
-
-
 
 #endif /* OSSIBEACON_H_ */

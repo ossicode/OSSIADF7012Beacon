@@ -4,7 +4,6 @@
 
 #include "ossi_beacon.h"
 
-void beacon_taskScheduler(void);
 void beacon_dataReceive(void);
 void beacon_dataProcessing(void);
 void beacon_dataSend(void);
@@ -12,13 +11,13 @@ void beacon_dataSend(void);
 void main(void)
 {
 	beacon_init();
-
+	beacon_taskSchedulePeriod(10);
 	while(1)
 	{
 
+
 		// Enter LPM3, interrupts enabled
 		__bis_SR_register(LPM3_bits + GIE);
-
 		// beacon wakes up after receiving data from OBC
 		beacon_taskSchedule();
 //		beacon_makePacket();
@@ -37,11 +36,6 @@ void main(void)
 //		beacon_dataProcessing();
 //		beacon_dataSend();
 	}
-}
-
-void beacon_taskScheduler(void)
-{
-
 }
 
 void beacon_dataReceive(void) // uart related handler

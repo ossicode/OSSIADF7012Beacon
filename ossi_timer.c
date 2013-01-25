@@ -11,6 +11,10 @@ static volatile uint32_t sysSecTick = 0;
 static volatile uint16_t sysMsDelayTick = 0;
 static volatile uint8_t sysMsDelayOn = 0;
 static volatile uint16_t sysMsDelay = 0;
+static volatile uint8_t sysSecWakeOn = 0;
+static volatile uint16_t sysSecWakePeriod = 0;
+static volatile uint16_t sysSecWakeTick = 0;
+
 static uint16_t msUnit;
 
 void systimer_init(uint16_t timerBSourceSelect, uint8_t timerBDividerSelect, uint8_t timerBMode, uint16_t timerBMsThreshold ,uint16_t timerBSecThreshold)
@@ -69,6 +73,9 @@ void systimer_stop(void)
 
 uint32_t systimer_getMsTick(void)
 {
+//	sysMsTick = TA1R & 0xFFFF;
+//	sysMsTick = sysMsTick / msUnit;
+//	sysMsTick = sysMsTick + sysSecTick*1000;
 	return sysMsTick;
 }
 
@@ -85,6 +92,23 @@ void systimer_msDelay(uint16_t msDelay)
 	while(sysMsDelayOn);
 }
 
+void systimer_setWakeUpPeriod(uint8_t sec)
+{
+	sysSecWakePeriod = sec;
+}
+
+void systimer_startWakeUpPeriod(void)
+{
+	sysSecWakeTick = 0;
+	sysSecWakeOn = 1;
+}
+
+void systimer_stopWakeUpPeriod(void)
+{
+	sysSecWakeOn = 0;
+	sysSecWakeTick = 0;
+}
+
 // Timer1_A0 interrupt service routine
 #pragma vector=TIMER1_A0_VECTOR
 __interrupt void systimer_sec(void)
@@ -94,6 +118,15 @@ __interrupt void systimer_sec(void)
 	sysSecTick++;
 	sysMsTick = sysSecTick * 1000;
 	TA1CCR1 = msUnit;
+	if (sysSecWakeOn)
+	{
+		sysSecWakeTick++;
+		if (sysSecWakeTick >= sysSecWakePeriod)
+		{
+			sysSecWakeTick = 0;
+			__bic_SR_register_on_exit(LPM3_bits);
+		}
+	}
 }
 
 // Timer1_A1 interrupt service routine

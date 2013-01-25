@@ -4,9 +4,7 @@
  *  Created on: 2013. 1. 21.
  *      Author: OSSI
  */
-
 #include "ossi_beacon.h"
-
 
 #define BEACON_NORMAL_MODE		(0)
 #define BEACON_STAND_ALONE_MODE	(1)
@@ -51,10 +49,29 @@ void beacon_portSetup(void)
 	P3DIR = 0xFF & ~(I2C_SDA_PIN+I2C_SCL_PIN+BEACON_CWCONTROL_PIN+UART_RXD_PIN); // make sure I2C pins are input by default
 }
 
+void beacon_wdtSetup(void)
+{
+	wdt_hold();
+	// TODO: set wdt reset time
+}
+
+void beacon_clockSetup(void)
+{
+	// default: MCLK=SMCLK=Calibrated 8MHz DCO / ACLK= LFXT1CLK = 32.768kHz
+	clock_setup();
+	clock_dividerSetup(MCLK_DIVIDED_BY_1, SMCLK_DIVIDED_BY_1, ACLK_DIVIDED_BY_1);
+}
+
+void beacon_systimerSetup(void)
+{
+	// set for 1ms tick / 1 sec tick / compensate msTick every second
+	systimer_init(TIMER_A1_ACLK, TIMER_A1_DIVIDED_BY_1, TIMER_A1_UP_MODE, 33, 32765);
+	systimer_start();
+}
+
 void beacon_init(void)
 {
 	wdt_hold();
-
 	// as soon as stopping the watchdog timer
 	// set up port to protect MCU
 	beacon_portSetup();
@@ -95,11 +112,27 @@ void beacon_init(void)
 		beaconPacket[i] = 0;
 	}
 
-
 	// i2c slave start
 	i2c_portSetup();
 	i2c_slaveInit(0x49, OSSI_DATA_SIZE, obcData);
 	i2c_slaveStart();
+}
+
+void beacon_setExtWdt(uint8_t val)
+{
+	if(val > 0)
+	{
+		P2OUT |= EXTWDT_PIN;
+	}
+	else
+	{
+		P2OUT &= ~EXTWDT_PIN;
+	}
+}
+
+void beacon_setExtWdtToggle(void)
+{
+	P2OUT ^= EXTWDT_PIN;
 }
 
 uint8_t beacon_getMorseStatus(void)
@@ -122,7 +155,6 @@ uint8_t beacon_morseStop(void)
 	morse_stop();
 }
 
-
 void beacon_updateOBCData(uint8_t intAddr, uint8_t value)
 {
 	obcData[intAddr] = value;
@@ -133,10 +165,16 @@ uint8_t beacon_getOBCData(uint8_t intAddr)
 	return obcData[intAddr];
 }
 
-
+void beacon_taskSchedulePeriod(uint8_t sec)
+{
+	systimer_setWakeUpPeriod(sec);
+	systimer_startWakeUpPeriod();
+}
 
 void beacon_taskSchedule(void)
 {
+	beacon_setExtWdtToggle();
+	P3OUT ^= LED_PIN;
 
 	if (beacon_getOBCData(BEACON_CMD1_ADDR) == MORSE_SEND_START)
 	{
@@ -163,20 +201,20 @@ void beacon_taskSchedule(void)
 uint8_t beacon_healthCheck(void)
 {
 	uint8_t result;
-	uint16_t adcValue[3];
+	uint16_t adcValue;
 
 	adc10_setVolReference(ADC10_REF_VCC_VSS);
 	// check VBUS
-	adcValue[0] =  adc10_readChannel(0);
-	obcData[BEACON_VBUS_ADDR] = (adcValue[0] >> 2) & 0xFF; // LSB
+	adcValue =  adc10_readChannel(0);
+	beacon_updateOBCData(BEACON_VBUS_ADDR, (adcValue >> 2) & 0xFF);
 	// if VBUS -> do something
 	// check ADC1
-	adcValue[1] =  adc10_readChannel(1);
-	obcData[BEACON_ADC1_ADDR] = (adcValue[1] >> 2)& 0xFF; // LSB
+	adcValue =  adc10_readChannel(1);
+	beacon_updateOBCData(BEACON_ADC1_ADDR, (adcValue >> 2) & 0xFF);
 	// if ADC1 -> do something
 	// check beacon MCU temp.
-	adcValue[2] =  adc10_readChannel(10);
-	obcData[BEACON_TEMP_ADDR] = (adcValue[2] >> 2)& 0xFF; // LSB
+	adcValue =  adc10_readChannel(10);
+	beacon_updateOBCData(BEACON_TEMP_ADDR, (adcValue >> 2) & 0xFF);
 	// adc10_offInternalVolReference(); // turn of reference if internal reference is used
 
 	// check ADF PLL
@@ -185,8 +223,6 @@ uint8_t beacon_healthCheck(void)
 	if (result == ERROR) {return result;}
 	return SUCCESS;
 }
-
-
 
 void beacon_makePacket(uint8_t num)
 {
@@ -218,7 +254,6 @@ void beacon_makePacket(uint8_t num)
 			beaconPacket[i+HEADER_SIZE] = ossiBeaconHello[i];
 		}
 		break;
-
 	case 1:
 		// STATUS DATA PACKET
 		for( i = 0 ; i < STATUS_DATA_SIZE; i++)
@@ -268,8 +303,6 @@ void beacon_makePacket(uint8_t num)
 		break;
 	}
 }
-
-
 
 void beacon_setOpMode(uint8_t mode)
 {
