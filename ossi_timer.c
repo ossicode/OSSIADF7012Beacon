@@ -25,6 +25,7 @@ void systimer_init(uint16_t timerBSourceSelect, uint8_t timerBDividerSelect, uin
 	// set tick unit time
 	TA1CCR0 = timerBSecThreshold;
 	TA1CCR1 = msUnit = timerBMsThreshold;
+//	msUnit = timerBMsThreshold;
 	// set divider first
 	TA1CTL = timerBDividerSelect;
 	// set timer source
@@ -74,7 +75,7 @@ void systimer_stop(void)
 uint32_t systimer_getMsTick(void)
 {
 //	sysMsTick = TA1R & 0xFFFF;
-//	sysMsTick = sysMsTick / msUnit;
+//	sysMsTick = (uint32_t)(sysMsTick / msUnit);
 //	sysMsTick = sysMsTick + sysSecTick*1000;
 	return sysMsTick;
 }
@@ -90,9 +91,17 @@ void systimer_msDelay(uint16_t msDelay)
 	sysMsDelayTick = 0;
 	sysMsDelayOn = 1;
 	while(sysMsDelayOn);
+//	volatile uint32_t prevMsTick, currMsTick;
+//	prevMsTick = systimer_getMsTick();
+//	while(1)
+//	{
+//		currMsTick= systimer_getMsTick();
+//		if((currMsTick - prevMsTick) > msDelay)
+//			break;
+//	}
 }
 
-void systimer_setWakeUpPeriod(uint8_t sec)
+void systimer_setWakeUpPeriod(uint16_t sec)
 {
 	sysSecWakePeriod = sec;
 }
@@ -137,7 +146,7 @@ __interrupt void systimer_ms(void)
 	{
 	case TA1IV_TACCR1:
 		// TODO: overflow check needed?
-		P3OUT ^= BEACON_CWCONTROL_PIN;
+//		P3OUT ^= BEACON_CWCONTROL_PIN;
 		sysMsTick++;
 		TA1CCR1 += msUnit;
 		if(sysMsDelayOn)

@@ -32,7 +32,7 @@ uint32_t systimer_getMsTick(void);
 uint32_t systimer_getSecTick(void);
 
 void systimer_msDelay(uint16_t msDelay);
-void systimer_setWakeUpPeriod(uint8_t sec);
+void systimer_setWakeUpPeriod(uint16_t sec);
 void systimer_startWakeUpPeriod(void);
 void systimer_stopWakeUpPeriod(void);
 

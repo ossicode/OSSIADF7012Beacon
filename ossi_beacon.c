@@ -174,7 +174,6 @@ void beacon_taskSchedulePeriod(uint8_t sec)
 void beacon_taskSchedule(void)
 {
 	beacon_setExtWdtToggle();
-	P3OUT ^= LED_PIN;
 
 	if (beacon_getOBCData(BEACON_CMD1_ADDR) == MORSE_SEND_START)
 	{
