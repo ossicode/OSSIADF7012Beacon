@@ -11,6 +11,15 @@
 #define OSSI_DATA_H_
 
 /*
+ * I2C Addresses
+ */
+
+#define COMMS_ADDR				(0x60)
+#define BEACON_ADDR				(0x61)
+#define LED_ADDR				(0x62)
+
+
+/*
  * OBC Data Model
  */
 

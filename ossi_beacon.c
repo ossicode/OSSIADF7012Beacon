@@ -114,7 +114,7 @@ void beacon_init(void)
 
 	// i2c slave start
 	i2c_portSetup();
-	i2c_slaveInit(0x49, OSSI_DATA_SIZE, obcData);
+	i2c_slaveInit(BEACON_ADDR, OSSI_DATA_SIZE, obcData);
 	i2c_slaveStart();
 }
 
